@@ -16,5 +16,50 @@ source/.vs/config/applicationhost.config
 source/OpenCover/
 
 
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+client/dist
+client/tmp
+client/out-tsc
+
+# dependencies
+client/node_modules
+
+# profiling files
+chrome-profiler-events.json
+speed-measure-plugin.json
+
+# IDEs and editors
+client/.idea
+client/.project
+client/.classpath
+client/.c9/
+client/*.launch
+client/.settings/
+client/*.sublime-workspace
+
+# IDE - VSCode
+client/.vscode/*
+client/!.vscode/settings.json
+client/!.vscode/tasks.json
+client/!.vscode/launch.json
+client/!.vscode/extensions.json
+client/.history/*
+
+# misc
+client/.sass-cache
+client/connect.lock
+client/coverage
+client/libpeerconnection.log
+client/npm-debug.log
+client/yarn-error.log
+client/testem.log
+client/typings
+
+# System Files
+client/.DS_Store
+client/Thumbs.db
+
 
 
