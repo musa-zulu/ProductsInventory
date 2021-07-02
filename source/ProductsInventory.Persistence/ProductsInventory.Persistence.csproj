@@ -4,4 +4,8 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ProductsInventory.DB\ProductsInventory.DB.csproj" />
+  </ItemGroup>
+
 </Project>

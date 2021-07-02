@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ProductsInventory.DB;
+using ProductsInventory.Persistence.Interfaces.Services;
+using ProductsInventory.Persistence.Services;
 
 namespace ProductsInventory.Server.Installers
 {
@@ -13,7 +15,8 @@ namespace ProductsInventory.Server.Installers
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddScoped<IApplicationDbContext, ApplicationDbContext>();  
+            services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+            services.AddScoped<ICategoryService, CategoryService>();
         }
     }
 }

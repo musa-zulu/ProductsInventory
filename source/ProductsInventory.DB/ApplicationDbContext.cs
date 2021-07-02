@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using ProductsInventory.DB.Domain;
 
 namespace ProductsInventory.DB
 {
     public interface IApplicationDbContext
     {
+        DbSet<Category> Categories { get; set; }
         Task<int> SaveChangesAsync();
     }
     public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
@@ -17,6 +19,8 @@ namespace ProductsInventory.DB
             _config = config;
         }
 
+
+        public DbSet<Category> Categories { get; set; }
         public Task<int> SaveChangesAsync() => base.SaveChangesAsync();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
