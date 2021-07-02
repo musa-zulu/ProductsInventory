@@ -1,4 +1,7 @@
-﻿using ProductsInventory.Persistence.Interfaces.Services;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using ProductsInventory.Persistence.Interfaces.Services;
+using ProductsInventory.Persistence.V1.Requests.Queries;
+using System;
 
 namespace ProductsInventory.Persistence.Services
 {
@@ -9,6 +12,22 @@ namespace ProductsInventory.Persistence.Services
         public UriService(string baseUri)
         {
             _baseUri = baseUri;
+        }
+
+        public Uri GetAllUri(PaginationQuery pagination = null)
+        {
+            var uri = new Uri(_baseUri);
+
+            if (pagination == null)
+            {
+                return uri;
+            }
+
+            var modifiedUri = QueryHelpers.AddQueryString(_baseUri, "pageNumber", pagination.PageNumber.ToString());
+            modifiedUri = QueryHelpers.AddQueryString(modifiedUri, "pageSize", pagination.PageSize.ToString());
+
+            return new Uri(modifiedUri);
+
         }
     }
 }
