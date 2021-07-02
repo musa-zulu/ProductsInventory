@@ -8,14 +8,18 @@ using Microsoft.Extensions.Configuration;
 using ProductsInventory.Server.Options;
 using ProductsInventory.DB;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace ProductsInventory.Server
 {
     public class Startup
     {
+        private readonly IConfigurationRoot configRoot;
         public Startup(IConfiguration configuration)
-        {
+        {            
             Configuration = configuration;
+            IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json");
+            configRoot = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -23,7 +27,7 @@ namespace ProductsInventory.Server
         // This method gets called by the runtime. Use this method to add services to the container.        
         public void ConfigureServices(IServiceCollection services)
         {
-            services.InstallServicesInAssembly(Configuration);
+            services.InstallServicesInAssembly(Configuration, configRoot);
             services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
             services.AddCors();
