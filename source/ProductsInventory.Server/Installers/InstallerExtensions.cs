@@ -7,12 +7,12 @@ namespace ProductsInventory.Server.Installers
 {
     public static class InstallerExtensions
     {
-        public static void InstallServicesInAssembly(this IServiceCollection services, IConfiguration configuration)
+        public static void InstallServicesInAssembly(this IServiceCollection services, IConfiguration configuration, IConfigurationRoot configRoot)
         {
             var installers = typeof(Startup).Assembly.ExportedTypes.Where(x =>
                 typeof(IInstaller).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract).Select(Activator.CreateInstance).Cast<IInstaller>().ToList();
 
-            installers.ForEach(installer => installer.InstallServices(services, configuration));
+            installers.ForEach(installer => installer.InstallServices(services, configuration, configRoot));
         }
     }
 }

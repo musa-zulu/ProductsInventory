@@ -9,13 +9,14 @@ namespace ProductsInventory.Server.Installers
 {
     public class DbInstaller : IInstaller
     {
-        public void InstallServices(IServiceCollection services, IConfiguration configuration)
-        {
+        public void InstallServices(IServiceCollection services, IConfiguration configuration, IConfigurationRoot configRoot)
+        {            
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    configuration.GetConnectionString("DefaultConnection")));
+               options.UseSqlServer(configuration.GetConnectionString("DefaultConnection") ?? configRoot["ConnectionStrings:DefaultConnection"]
+            , b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
             services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICategoryService, CategoryService>();
         }
     }

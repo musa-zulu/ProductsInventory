@@ -7,7 +7,7 @@ namespace ProductsInventory.Server.Installers
 {
     public class SwaggerInstaller : IInstaller
     {
-        public void InstallServices(IServiceCollection services, IConfiguration configuration)
+        public void InstallServices(IServiceCollection services, IConfiguration configuration, IConfigurationRoot configRoot)
         {
             services.AddSwaggerGen(x =>
             {

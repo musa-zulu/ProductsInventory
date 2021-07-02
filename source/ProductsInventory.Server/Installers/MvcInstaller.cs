@@ -10,7 +10,7 @@ namespace ProductsInventory.Server.Installers
 {
     public class MvcInstaller : IInstaller
     {
-        public void InstallServices(IServiceCollection services, IConfiguration configuration)
+        public void InstallServices(IServiceCollection services, IConfiguration configuration, IConfigurationRoot configRoot)
         {
             services
                 .AddMvc(options =>
