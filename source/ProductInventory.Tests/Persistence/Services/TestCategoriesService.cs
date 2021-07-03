@@ -100,7 +100,123 @@ namespace ProductInventory.Tests.Persistence.Services
             Assert.IsNotNull(results);
             Assert.AreEqual(4, results.Count);
         }
-        
+
+        [Test]
+        public async Task CreateCategoryAsync_GivenACategoryExistOnDb_ShouldReturnFalse()
+        {
+            //---------------Set up test pack-------------------            
+            var category = CreateRandomCategory(Guid.NewGuid());
+            await _db.Add(category);
+
+            var categoryService = CreateCategoryService();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var results = await categoryService.CreateCategoryAsync(category);
+            //---------------Test Result -----------------------
+            Assert.IsFalse(results);
+        }
+
+        [Test]
+        public async Task CreateCategoryAsync_GivenACategory_ShouldAddCategoryToRepo()
+        {
+            //---------------Set up test pack-------------------
+            var category = CreateRandomCategory(Guid.NewGuid());
+            var categoryService = CreateCategoryService();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var results = await categoryService.CreateCategoryAsync(category);
+            //---------------Test Result -----------------------
+            var categoryFromRepo = await categoryService.GetCategoryByIdAsync(category.CategoryId);
+            Assert.IsTrue(results);
+            Assert.AreEqual(categoryFromRepo.CategoryId, category.CategoryId);
+            Assert.AreEqual(categoryFromRepo.Name, category.Name);
+            Assert.AreEqual(categoryFromRepo.CategoryCode, category.CategoryCode);
+        }
+
+        [Test]
+        public async Task CreateCategoryAsync_GivenCategoryHasBeenSavedSuccessfully_ShouldReturnTrue()
+        {
+            //---------------Set up test pack-------------------
+            var category = CreateRandomCategory(Guid.NewGuid());
+            var categoryService = CreateCategoryService();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var results = await categoryService.CreateCategoryAsync(category);
+            //---------------Test Result -----------------------            
+            Assert.IsTrue(results);
+        }
+
+        [Test]
+        public async Task GetCategoryByIdAsync_GivenNoCategoryExist_ShouldReturnNull()
+        {
+            //---------------Set up test pack-------------------  
+            var categoryService = CreateCategoryService();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var results = await categoryService.GetCategoryByIdAsync(Guid.NewGuid());
+            //---------------Test Result -----------------------
+            Assert.IsNull(results);
+        }
+
+        [Test]
+        public async Task GetCategoryByIdAsync_GivenCategoryExistInRepo_ShouldReturnThatCategory()
+        {
+            //---------------Set up test pack-------------------
+            var category = CreateRandomCategory(Guid.NewGuid());
+            var categoryService = CreateCategoryService();
+            await _db.Add(category);
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var results = await categoryService.GetCategoryByIdAsync(category.CategoryId);
+            //---------------Test Result -----------------------         
+            Assert.AreEqual(results.Name, category.Name);
+            Assert.AreEqual(results.CategoryId, category.CategoryId);
+            Assert.AreEqual(results.CategoryCode, category.CategoryCode);
+        }
+
+        [Test]
+        public async Task DeleteCategoryAsync_GivenNoCategoryExist_ShouldReturnFalse()
+        {
+            //---------------Set up test pack-------------------            
+            var categoryService = CreateCategoryService();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var results = await categoryService.DeleteCategoryAsync(Guid.Empty);
+            //---------------Test Result -----------------------            
+            Assert.IsFalse(results);
+        }
+
+        [Test]
+        public async Task UpdateCategoryAsync_GivenCategoryExistInRepo_ShouldUpdateThatCategory()
+        {
+            //---------------Set up test pack-------------------
+            var category = CreateRandomCategory(Guid.NewGuid());
+            await _db.Add(category);
+            var categoryService = CreateCategoryService();
+            //---------------Assert Precondition----------------
+            category.Name = "This has been updated";
+            //---------------Execute Test ----------------------
+            var results = await categoryService.UpdateCategoryAsync(category);
+            //---------------Test Result -----------------------         
+            var categoryFromRepo = await categoryService.GetCategoryByIdAsync(category.CategoryId);
+            Assert.AreEqual(categoryFromRepo.Name, "This has been updated");
+        }
+
+        [Test]
+        public async Task UpdateCategoryAsync_GivenCategoryHasBeenUpdatedSuccessfully_ShouldReturnTrue()
+        {
+            //---------------Set up test pack-------------------
+            var category = CreateRandomCategory(Guid.NewGuid());
+            await _db.Add(category);
+            var categoryService = CreateCategoryService();
+            //---------------Assert Precondition----------------
+            category.Name = "This has been updated";
+            //---------------Execute Test ----------------------
+            var results = await categoryService.UpdateCategoryAsync(category);
+            //---------------Test Result -----------------------                     
+            Assert.IsTrue(results);
+        }
+
         private CategoryService CreateCategoryService()
         {                      
             return new CategoryService(_db.DbContext);

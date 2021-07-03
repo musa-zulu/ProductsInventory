@@ -4,6 +4,7 @@ using ProductsInventory.DB.Domain;
 using ProductsInventory.Persistence.Helpers;
 using ProductsInventory.Persistence.Interfaces.Services;
 using ProductsInventory.Persistence.V1;
+using ProductsInventory.Persistence.V1.Requests;
 using ProductsInventory.Persistence.V1.Requests.Queries;
 using ProductsInventory.Persistence.V1.Responses;
 using ProductsInventory.Server.Helpers;
@@ -52,6 +53,38 @@ namespace ProductsInventory.Server.Controllers.V1
 
             var paginationResponse = PaginationHelpers.CreatePaginatedResponse(_uriService, pagination, categoryResponse);
             return Ok(paginationResponse);
+        }
+
+        [HttpGet(ApiRoutes.Categories.Get)]
+        public async Task<IActionResult> Get([FromRoute] Guid categoryId)
+        {
+            var category = await _categoryService.GetCategoryByIdAsync(categoryId);
+
+            if (category == null)
+                return NotFound();
+
+            var categoryResponse = _mapper.Map<CategoryResponse>(category);
+            return Ok(new Response<CategoryResponse>(categoryResponse));
+        }
+
+
+        [HttpPost(ApiRoutes.Categories.Create)]
+        public async Task<IActionResult> Create([FromBody] CreateCategoryRequest categoryRequest)
+        {
+            SetDefaultFieldsFor(categoryRequest);
+            var category = _mapper.Map<CreateCategoryRequest, Category>(categoryRequest);
+
+            await _categoryService.CreateCategoryAsync(category);
+
+            var locationUri = _uriService.GetCategoryUri(category.CategoryId.ToString());
+            return Created(locationUri, new Response<CategoryResponse>(_mapper.Map<CategoryResponse>(category)));
+        }
+
+        private void SetDefaultFieldsFor(CreateCategoryRequest categoryRequest)
+        {
+            categoryRequest.CategoryId = Guid.NewGuid();                        
+            categoryRequest.DateCreated = DateTimeProvider.Now;
+            categoryRequest.DateLastModified = DateTimeProvider.Now;
         }
     }
 }

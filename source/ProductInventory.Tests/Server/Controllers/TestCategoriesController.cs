@@ -8,7 +8,6 @@ using ProductInventory.Tests.Common.Builders.V1.Requests;
 using ProductsInventory.DB.Domain;
 using ProductsInventory.Persistence.Helpers;
 using ProductsInventory.Persistence.Interfaces.Services;
-using ProductsInventory.Persistence.V1.Requests;
 using ProductsInventory.Persistence.V1.Requests.Queries;
 using ProductsInventory.Persistence.V1.Responses;
 using ProductsInventory.Server.Controllers.V1;
@@ -226,7 +225,163 @@ namespace ProductInventory.Tests.Server.Controllers
             var pagedResponse = result.Value as PagedResponse<CategoryResponse>;
             Assert.IsNotNull(pagedResponse);
             Assert.AreEqual(category.Name, pagedResponse.Data.FirstOrDefault().Name);
-        }    
+        }
+
+        [Test]
+        public void Get_ShouldHaveHttpGetAttribute()
+        {
+            //---------------Set up test pack-------------------
+            var methodInfo = typeof(CategoriesController)
+                .GetMethod("Get");
+            //---------------Assert Precondition----------------
+            Assert.IsNotNull(methodInfo);
+            //---------------Execute Test ----------------------
+            var httpPostAttribute = methodInfo.GetCustomAttribute<HttpGetAttribute>();
+            //---------------Test Result -----------------------
+            Assert.NotNull(httpPostAttribute);
+        }
+
+        [Test]
+        public async Task Get_ShouldReturnOkResultObject_WhenCategoryExist()
+        {
+            //---------------Set up test pack-------------------
+            var category = CategoryBuilder.BuildRandom();
+            var categoryId = category.CategoryId;
+            var categoryService = Substitute.For<ICategoryService>();
+
+            categoryService.GetCategoryByIdAsync(categoryId).Returns(category);
+
+            var controller = CreateCategoriesControllerBuilder()
+                                   .WithCategoryService(categoryService)
+                                   .WithMapper(_mapper)
+                                   .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.Get(categoryId) as OkObjectResult;
+            //---------------Test Result -----------------------            
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<OkObjectResult>(result);
+        }
+
+        [Test]
+        public async Task Get_ShouldReturnNotFound_WhenCategoryDoesNotExist()
+        {
+            //---------------Set up test pack-------------------
+            var controller = CreateCategoriesControllerBuilder().Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.Get(Guid.Empty) as NotFoundResult;
+            //---------------Test Result -----------------------            
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.NotFound, result.StatusCode);
+        }
+
+        [Test]
+        public async Task Get_ShouldCallMappingEngine()
+        {
+            //---------------Set up test pack-------------------
+            var category = CategoryBuilder.BuildRandom();
+            var categoryId = category.CategoryId;
+            var categoryService = Substitute.For<ICategoryService>();
+            var mappingEngine = Substitute.For<IMapper>();
+
+            categoryService.GetCategoryByIdAsync(categoryId).Returns(category);
+
+            var controller = CreateCategoriesControllerBuilder()
+                .WithMapper(mappingEngine)
+                .WithCategoryService(categoryService)
+                .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.Get(categoryId);
+            //---------------Test Result -----------------------
+            mappingEngine.Received(1).Map<CategoryResponse>(category);
+        }
+
+        [Test]
+        public async Task Get_ShouldReturnCategory_WhenCategoryExist()
+        {
+            //---------------Set up test pack-------------------
+            var category = CategoryBuilder.BuildRandom();
+            var categoryId = category.CategoryId;
+            var categoryService = Substitute.For<ICategoryService>();
+
+            categoryService.GetCategoryByIdAsync(categoryId).Returns(category);
+
+            var controller = CreateCategoriesControllerBuilder()
+                .WithMapper(_mapper)
+                .WithCategoryService(categoryService)
+                .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.Get(categoryId) as OkObjectResult;
+            //---------------Test Result -----------------------
+            var pagedResponse = result.Value as Response<CategoryResponse>;
+            Assert.IsNotNull(pagedResponse);
+            Assert.AreEqual(category.CategoryId, pagedResponse.Data.CategoryId);
+            Assert.AreEqual(category.Name, pagedResponse.Data.Name);
+        }
+                  
+
+        [Test]
+        public void Create_ShouldHaveHttpPostAttribute()
+        {
+            //---------------Set up test pack-------------------
+            var methodInfo = typeof(CategoriesController)
+                .GetMethod("Create");
+            //---------------Assert Precondition----------------
+            Assert.IsNotNull(methodInfo);
+            //---------------Execute Test ----------------------
+            var httpPostAttribute = methodInfo.GetCustomAttribute<HttpPostAttribute>();
+            //---------------Test Result -----------------------
+            Assert.NotNull(httpPostAttribute);
+        }
+
+        [Test]
+        public async Task Create_ShouldReturnStatusOf201_GivenACategoryHasBeenSaved()
+        {
+            //---------------Set up test pack-------------------      
+            Uri uri = CreateUri();
+            var categoryRequest = CreateCategoryRequestBuilder.BuildRandom();            
+            var uriService = Substitute.For<IUriService>();
+
+            uriService.GetCategoryUri(Arg.Any<string>()).Returns(uri);
+
+            var controller = CreateCategoriesControllerBuilder()
+                                   .WithUriService(uriService)                                   
+                                   .WithMapper(_mapper)
+                                   .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.Create(categoryRequest) as CreatedResult;
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.Created, result.StatusCode);
+        }
+
+        [Test]
+        public async Task Create_ShouldSaveCategory_GivenAValidCategoryObject()
+        {
+            //---------------Set up test pack-------------------      
+            Uri uri = CreateUri();
+            var categoryRequest = CreateCategoryRequestBuilder.BuildRandom();            
+            var uriService = Substitute.For<IUriService>();
+
+            uriService.GetCategoryUri(Arg.Any<string>()).Returns(uri);
+
+            var controller = CreateCategoriesControllerBuilder()
+                                   .WithUriService(uriService)                                   
+                                   .WithMapper(_mapper)
+                                   .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.Create(categoryRequest) as CreatedResult;
+            //---------------Test Result -----------------------
+            var createdCategory = (result.Value as Response<CategoryResponse>).Data;
+
+            Assert.AreEqual(categoryRequest.Name, createdCategory.Name);
+            Assert.AreEqual(categoryRequest.IsActive, createdCategory.IsActive);
+        }
 
         private static PaginationQuery CreatePaginationQuery()
         {
