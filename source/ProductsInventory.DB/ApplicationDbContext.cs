@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 namespace ProductsInventory.DB
 {
     public interface IApplicationDbContext
-    {
-        DbSet<User> Users { get; set; }
+    {   
         DbSet<Category> Categories { get; set; }
         Task<int> SaveChangesAsync();
     }
@@ -19,8 +18,7 @@ namespace ProductsInventory.DB
             ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<Category> Categories { get; set; }
+        public DbSet<Category> Categories { get; set; }        
         public Task<int> SaveChangesAsync() => base.SaveChangesAsync();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -32,17 +30,11 @@ namespace ProductsInventory.DB
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<User>().ToTable("Users");
             builder.Entity<Category>().ToTable("Categories");
 
             builder.Entity<Category>().Property(f => f.Name).IsRequired();
             builder.Entity<Category>().Property(f => f.CategoryCode).IsRequired().HasMaxLength(6);
             builder.Entity<Category>().Property(f => f.IsActive).IsRequired();
-
-            builder.Entity<User>().Property(u => u.Username).IsRequired().HasMaxLength(100);
-            builder.Entity<User>().Property(u => u.Email).IsRequired().HasMaxLength(200);
-            builder.Entity<User>().Property(u => u.HashedPassword).IsRequired().HasMaxLength(200);
-            builder.Entity<User>().Property(u => u.Salt).IsRequired().HasMaxLength(200);
         }
     }
 }

@@ -31,9 +31,9 @@ namespace ProductsInventory.Persistence.Services
 
         }
 
-        public Uri GetUserUri(string userId)
+        public Uri GetCategoryUri(string categoryId)
         {
-            return new Uri(_baseUri + ApiRoutes.Users.Get.Replace("{userId}", userId));
+            return new Uri(_baseUri + ApiRoutes.Categories.Get.Replace("{categoryId}", categoryId));
         }
     }
 }

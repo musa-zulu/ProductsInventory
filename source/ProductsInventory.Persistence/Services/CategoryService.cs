@@ -29,35 +29,6 @@ namespace ProductsInventory.Persistence.Services
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
             return await queryable.Skip(skip).Take(paginationFilter.PageSize).ToListAsync();
-        }
-
-        public async Task<bool> CreateCategoryAsync(Category category)
-        {
-            _dataContext.Categories.Add(category);
-            return await _dataContext.SaveChangesAsync() > 0;
-        }
-
-        public async Task<Category> GetCategoryByIdAsync(Guid categoryId)
-        {
-            return await _dataContext.Categories
-                .SingleOrDefaultAsync(x => x.CategoryId == categoryId);
-        }
-
-        public async Task<bool> UpdateCategoryAsync(Category categoryToUpdate)
-        {
-            _dataContext.Categories.Update(categoryToUpdate);
-            return await _dataContext.SaveChangesAsync() > 0;
-        }
-
-        public async Task<bool> DeleteCategoryAsync(Guid CategoryId)
-        {
-            var category = await GetCategoryByIdAsync(CategoryId);
-
-            if (category == null)
-                return false;
-
-            _dataContext.Categories.Remove(category);
-            return await _dataContext.SaveChangesAsync() > 0;
-        }
+        }       
     }
 }

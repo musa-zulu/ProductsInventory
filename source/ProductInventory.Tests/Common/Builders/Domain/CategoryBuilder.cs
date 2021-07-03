@@ -4,11 +4,11 @@ using System;
 
 namespace ProductInventory.Tests.Common.Builders.Domain
 {
-    public class UserBuilder : GenericBuilder<UserBuilder, User>
+    public class CategoryBuilder : GenericBuilder<CategoryBuilder, Category>
     {
-        public UserBuilder WithId(Guid id)
+        public CategoryBuilder WithId(Guid id)
         {
-            return WithProp(x => x.UserId = id);
+            return WithProp(x => x.CategoryId = id);
         }
     }
 }

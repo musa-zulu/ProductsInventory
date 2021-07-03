@@ -51,16 +51,16 @@ namespace ProductInventory.Tests.Persistence.Services
         }
 
         [Test]
-        public void GetUserUri_GivenUserId_ShouldReturnModifiedUri()
+        public void GetCategoryUri_GivenCategoryId_ShouldReturnModifiedUri()
         {
             //---------------Set up test pack-------------------
             var baseUri = "localhost:4000/";
-            var userId = Guid.NewGuid().ToString();
+            var categoryId = Guid.NewGuid().ToString();
             var uriService = new UriService(baseUri);
-            var modifiedUrl = "localhost:4000/api/v1/users/"+ userId;
+            var modifiedUrl = "localhost:4000/api/v1/categories/"+ categoryId;
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            var results = uriService.GetUserUri(userId);
+            var results = uriService.GetCategoryUri(categoryId);
             //---------------Test Result -----------------------            
             Assert.AreEqual(modifiedUrl, results.AbsoluteUri);
         }
