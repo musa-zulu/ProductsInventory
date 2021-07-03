@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.7" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
     <PackageReference Include="coverlet.collector" Version="3.0.3">
@@ -23,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ProductsInventory.DB\ProductsInventory.DB.csproj" />
     <ProjectReference Include="..\ProductsInventory.Persistence\ProductsInventory.Persistence.csproj" />
+    <ProjectReference Include="..\ProductsInventory.Server\ProductsInventory.Server.csproj" />
   </ItemGroup>
 
 </Project>

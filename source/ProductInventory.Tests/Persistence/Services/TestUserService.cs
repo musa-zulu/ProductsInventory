@@ -163,7 +163,7 @@ namespace ProductInventory.Tests.Persistence.Services
         {
             //---------------Set up test pack-------------------
             var user = CreateRandomUser(Guid.NewGuid());
-            var userService = new UserService(_db.DbContext);
+            var userService = CreateUserService();
             await _db.Add(user);
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
@@ -191,7 +191,7 @@ namespace ProductInventory.Tests.Persistence.Services
         {
             //---------------Set up test pack-------------------
             var user = CreateRandomUser(Guid.NewGuid());
-            var userService = new UserService(_db.DbContext);
+            var userService = CreateUserService();
             await _db.Add(user);
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
@@ -220,7 +220,7 @@ namespace ProductInventory.Tests.Persistence.Services
             //---------------Set up test pack-------------------
             var user = CreateRandomUser(Guid.NewGuid()); 
             await _db.Add(user);      
-            var userService = new UserService(_db.DbContext);
+            var userService = CreateUserService();
             //---------------Assert Precondition----------------
             user.Username = "This has been updated";
             //---------------Execute Test ----------------------
@@ -236,7 +236,7 @@ namespace ProductInventory.Tests.Persistence.Services
             //---------------Set up test pack-------------------
             var user = CreateRandomUser(Guid.NewGuid());
             await _db.Add(user);
-            var userService = new UserService(_db.DbContext);
+            var userService = CreateUserService();
             //---------------Assert Precondition----------------
             user.Username = "This has been updated";
             //---------------Execute Test ----------------------
