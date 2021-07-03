@@ -58,6 +58,8 @@ namespace ProductsInventory.Server
             app.UseCors(options =>
                 options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
+            app.UseAuthentication();
+
             app.UseMvc();
 
             // This returns the context.

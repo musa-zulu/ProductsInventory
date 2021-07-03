@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using ProductsInventory.DB.Domain;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ProductsInventory.DB
 {
@@ -10,7 +11,7 @@ namespace ProductsInventory.DB
         DbSet<Category> Categories { get; set; }
         Task<int> SaveChangesAsync();
     }
-    public sealed class ApplicationDbContext : DbContext, IApplicationDbContext
+    public sealed class ApplicationDbContext : IdentityDbContext, IApplicationDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

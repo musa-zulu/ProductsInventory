@@ -12,8 +12,15 @@
             public const string Update = Base + "/users";
             public const string Delete = Base + "/users/{userId}";
             public const string Get = Base + "/users/{userId}";
-            public const string GetByUsername = Base + "/users/getbyusername/{userName}";
+            public const string GetByUserEmail = Base + "/users/getbyemail/{email}";
             public const string Create = Base + "/users";
+        }
+
+        public static class Account
+        {
+            public const string Login = Base + "/account/login";
+            public const string Logout = Base + "/account/logout";       
+            public const string Register = Base + "/account/register";       
         }
     }
 }
