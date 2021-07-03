@@ -53,5 +53,17 @@ namespace ProductsInventory.Server.Controllers.V1
             var paginationResponse = PaginationHelpers.CreatePaginatedResponse(_uriService, pagination, userResponse);
             return Ok(paginationResponse);
         }
+
+        [HttpGet(ApiRoutes.Users.Get)]
+        public async Task<IActionResult> Get([FromRoute] Guid userId)
+        {
+            var user = await _userService.GetUserByUserIdAsync(userId);
+
+            if (user == null)
+                return NotFound();
+
+            var userResponse = _mapper.Map<UserResponse>(user);
+            return Ok(new Response<UserResponse>(userResponse));
+        }
     }
 }
