@@ -17,10 +17,10 @@ namespace ProductsInventory.Server.Installers
             , b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
             services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
-            services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IEncryptionService, EncryptionService>();
-            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddIdentity<IdentityUser, IdentityRole>();
+                //.AddEntityFrameworkStores<ApplicationDbContext>();
         }
     }
 }

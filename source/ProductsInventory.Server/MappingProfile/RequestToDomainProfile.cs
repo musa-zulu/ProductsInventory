@@ -10,7 +10,7 @@ namespace ProductsInventory.Server.MappingProfile
         public RequestToDomainProfile()
         {
             CreateMap<PaginationQuery, PaginationFilter>();
-            CreateMap<CreateUserRequest, User>();
+            CreateMap<CreateCategoryRequest, Category>();
         }
     }
 }

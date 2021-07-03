@@ -6,7 +6,7 @@ using System;
 namespace ProductInventory.Tests.Persistence.V1.Responses
 {
     [TestFixture]
-    public class TestUserResponse
+    public class TestCategoryResponse
     {
         [Test]
         public void Construct()
@@ -14,18 +14,18 @@ namespace ProductInventory.Tests.Persistence.V1.Responses
             //---------------Set up test pack-------------------
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => new UserResponse());
+            Assert.DoesNotThrow(() => new CategoryResponse());
             //---------------Test Result -----------------------
         }
 
-        [TestCase("UserId", typeof(Guid))]
-        [TestCase("UserName", typeof(string))]
-        [TestCase("Email", typeof(string))]        
-        [TestCase("Password", typeof(string))]
-        public void UserResponse_ShouldHaveProperty(string propertyName, Type propertyType)
+        [TestCase("CategoryId", typeof(Guid))]
+        [TestCase("Name", typeof(string))]
+        [TestCase("CategoryCode", typeof(string))]        
+        [TestCase("IsActive", typeof(bool))]
+        public void CategoryResponse_ShouldHaveProperty(string propertyName, Type propertyType)
         {
             //---------------Set up test pack-------------------
-            var sut = typeof(UserResponse);
+            var sut = typeof(CategoryResponse);
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
             sut.ShouldHaveProperty(propertyName, propertyType);
