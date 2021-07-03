@@ -17,7 +17,7 @@ go
 
 if not exists (select name from master..sysdatabases where name = 'ProductsInventory')
 begin
-create database OnlineStore
+create database ProductsInventory
 end;
 GO
 
