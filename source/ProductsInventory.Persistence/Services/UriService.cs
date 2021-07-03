@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
 using ProductsInventory.Persistence.Interfaces.Services;
+using ProductsInventory.Persistence.V1;
 using ProductsInventory.Persistence.V1.Requests.Queries;
 using System;
 
@@ -28,6 +29,11 @@ namespace ProductsInventory.Persistence.Services
 
             return new Uri(modifiedUri);
 
+        }
+
+        public Uri GetUserUri(string userId)
+        {
+            return new Uri(_baseUri + ApiRoutes.Users.Get.Replace("{userId}", userId));
         }
     }
 }

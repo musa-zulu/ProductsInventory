@@ -4,6 +4,7 @@ using ProductsInventory.DB.Domain;
 using ProductsInventory.Persistence.Helpers;
 using ProductsInventory.Persistence.Interfaces.Services;
 using ProductsInventory.Persistence.V1;
+using ProductsInventory.Persistence.V1.Requests;
 using ProductsInventory.Persistence.V1.Requests.Queries;
 using ProductsInventory.Persistence.V1.Responses;
 using ProductsInventory.Server.Helpers;
@@ -18,13 +19,15 @@ namespace ProductsInventory.Server.Controllers.V1
         private readonly IUriService _uriService;
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
+        private readonly IEncryptionService _encryptionService;
         private IDateTimeProvider _dateTimeProvider;
 
-        public UsersController(IUserService userService, IMapper mapper, IUriService uriService)
+        public UsersController(IUserService userService, IMapper mapper, IUriService uriService, IEncryptionService encryptionService)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _uriService = uriService ?? throw new ArgumentNullException(nameof(uriService));
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _encryptionService = encryptionService ?? throw new ArgumentNullException(nameof(encryptionService));
         }
 
         public IDateTimeProvider DateTimeProvider
@@ -76,6 +79,31 @@ namespace ProductsInventory.Server.Controllers.V1
 
             var userResponse = _mapper.Map<UserResponse>(user);
             return Ok(new Response<UserResponse>(userResponse));
+        }
+
+        [HttpPost(ApiRoutes.Users.Create)]
+        public async Task<IActionResult> Create([FromBody] CreateUserRequest userRequest)
+        {
+            SetDefaultFieldsFor(userRequest);
+            var user = _mapper.Map<CreateUserRequest, User>(userRequest);
+
+            await _userService.CreateUserAsync(user);
+
+            var locationUri = _uriService.GetUserUri(user.UserId.ToString());
+            return Created(locationUri, new Response<UserResponse>(_mapper.Map<UserResponse>(user)));
+        }
+
+        private void SetDefaultFieldsFor(CreateUserRequest userRequest)
+        {
+            var saltPassword = _encryptionService.CreateSalt();
+            var hashedPassword = _encryptionService.EncryptPassword(userRequest.Password, saltPassword);
+
+            userRequest.UserId = Guid.NewGuid();
+            userRequest.IsLocked = false;
+            userRequest.HashedPassword = hashedPassword;
+            userRequest.Salt = saltPassword;
+            userRequest.DateCreated = DateTimeProvider.Now;
+            userRequest.DateLastModified = DateTimeProvider.Now;
         }
     }
 }

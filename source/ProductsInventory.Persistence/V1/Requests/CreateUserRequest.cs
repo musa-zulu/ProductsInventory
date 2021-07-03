@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace ProductsInventory.Persistence.V1.Requests
 {
@@ -10,5 +10,6 @@ namespace ProductsInventory.Persistence.V1.Requests
         public string HashedPassword { get; set; }
         public string Salt { get; set; }
         public bool IsLocked { get; set; }
+        public string Password { get; set; }
     }
 }

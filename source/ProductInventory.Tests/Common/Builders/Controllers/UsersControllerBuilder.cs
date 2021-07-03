@@ -12,11 +12,13 @@ namespace ProductInventory.Tests.Common.Builders.Controllers
             Mapper = Substitute.For<IMapper>();
             UriService = Substitute.For<IUriService>();
             UserService = Substitute.For<IUserService>();
+            EncryptionService = Substitute.For<IEncryptionService>();
         }
 
         public IMapper Mapper { get; private set; }
         public IUriService UriService { get; private set; }
         public IUserService UserService { get; private set; }
+        public IEncryptionService EncryptionService { get; private set; }
 
         public UsersControllerBuilder WithMapper(IMapper mapper)
         {
@@ -36,9 +38,15 @@ namespace ProductInventory.Tests.Common.Builders.Controllers
             return this;
         }
 
+        public UsersControllerBuilder WithEncryptionService(IEncryptionService encryptionService)
+        {
+            EncryptionService = encryptionService;
+            return this;
+        }
+
         public UsersController Build()
         {
-            return new UsersController(UserService, Mapper, UriService);
+            return new UsersController(UserService, Mapper, UriService, EncryptionService);
         }
     }
 }

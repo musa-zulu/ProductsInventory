@@ -4,9 +4,11 @@ using NSubstitute;
 using NUnit.Framework;
 using ProductInventory.Tests.Common.Builders.Controllers;
 using ProductInventory.Tests.Common.Builders.Domain;
+using ProductInventory.Tests.Common.Builders.V1.Requests;
 using ProductsInventory.DB.Domain;
 using ProductsInventory.Persistence.Helpers;
 using ProductsInventory.Persistence.Interfaces.Services;
+using ProductsInventory.Persistence.V1.Requests;
 using ProductsInventory.Persistence.V1.Requests.Queries;
 using ProductsInventory.Persistence.V1.Responses;
 using ProductsInventory.Server.Controllers.V1;
@@ -46,7 +48,7 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
             Assert.DoesNotThrow(() =>
-                new UsersController(Substitute.For<IUserService>(), Substitute.For<IMapper>(), Substitute.For<IUriService>()));
+                new UsersController(Substitute.For<IUserService>(), Substitute.For<IMapper>(), Substitute.For<IUriService>(), Substitute.For<IEncryptionService>()));
             //---------------Test Result -----------------------
         }
 
@@ -57,7 +59,7 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
             var ex = Assert.Throws<ArgumentNullException>(() =>
-                    new UsersController(null, Substitute.For<IMapper>(), Substitute.For<IUriService>()));
+                    new UsersController(null, Substitute.For<IMapper>(), Substitute.For<IUriService>(), Substitute.For<IEncryptionService>()));
             //---------------Test Result -----------------------
             Assert.AreEqual("userService", ex.ParamName);
         }
@@ -69,7 +71,7 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
             var ex = Assert.Throws<ArgumentNullException>(() =>
-                    new UsersController(Substitute.For<IUserService>(), null, Substitute.For<IUriService>()));
+                    new UsersController(Substitute.For<IUserService>(), null, Substitute.For<IUriService>(), Substitute.For<IEncryptionService>()));
             //---------------Test Result -----------------------
             Assert.AreEqual("mapper", ex.ParamName);
         }
@@ -81,9 +83,21 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
             var ex = Assert.Throws<ArgumentNullException>(() =>
-                    new UsersController(Substitute.For<IUserService>(), Substitute.For<IMapper>(), null));
+                    new UsersController(Substitute.For<IUserService>(), Substitute.For<IMapper>(), null, Substitute.For<IEncryptionService>()));
             //---------------Test Result -----------------------
             Assert.AreEqual("uriService", ex.ParamName);
+        }
+
+        [Test]
+        public void Construct_GivenEncryptionServiceIsNull_ShouldThrow()
+        {
+            //---------------Set up test pack-------------------
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<ArgumentNullException>(() =>
+                    new UsersController(Substitute.For<IUserService>(), Substitute.For<IMapper>(), Substitute.For<IUriService>(), null));
+            //---------------Test Result -----------------------
+            Assert.AreEqual("encryptionService", ex.ParamName);
         }
 
         [Test]
@@ -306,7 +320,7 @@ namespace ProductInventory.Tests.Server.Controllers
             var userService = Substitute.For<IUserService>();
 
             userService.GetUserByUserIdAsync(userId).Returns(user);
-            
+
             var controller = CreateUsersControllerBuilder()
                 .WithMapper(_mapper)
                 .WithUserService(userService)
@@ -317,7 +331,7 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Test Result -----------------------
             var pagedResponse = result.Value as Response<UserResponse>;
             Assert.IsNotNull(pagedResponse);
-            Assert.AreEqual(user.UserId.ToString(), pagedResponse.Data.UserId);
+            Assert.AreEqual(user.UserId, pagedResponse.Data.UserId);
             Assert.AreEqual(user.Username, pagedResponse.Data.UserName);
         }
 
@@ -412,9 +426,118 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Test Result -----------------------
             var pagedResponse = result.Value as Response<UserResponse>;
             Assert.IsNotNull(pagedResponse);
-            Assert.AreEqual(user.UserId.ToString(), pagedResponse.Data.UserId);
+            Assert.AreEqual(user.UserId, pagedResponse.Data.UserId);
             Assert.AreEqual(user.Username, pagedResponse.Data.UserName);
         }
+
+        [Test]
+        public void Create_ShouldHaveHttpPostAttribute()
+        {
+            //---------------Set up test pack-------------------
+            var methodInfo = typeof(UsersController)
+                .GetMethod("Create");
+            //---------------Assert Precondition----------------
+            Assert.IsNotNull(methodInfo);
+            //---------------Execute Test ----------------------
+            var httpPostAttribute = methodInfo.GetCustomAttribute<HttpPostAttribute>();
+            //---------------Test Result -----------------------
+            Assert.NotNull(httpPostAttribute);
+        }
+
+        [Test]
+        public async Task Create_ShouldCallCreateSalt()
+        {
+            //---------------Set up test pack-------------------   
+            Uri uri = CreateUri();
+            var encryptionService = Substitute.For<IEncryptionService>();
+            var uriService = Substitute.For<IUriService>();
+
+            uriService.GetUserUri(Arg.Any<string>()).Returns(uri);
+
+            var controller = CreateUsersControllerBuilder()
+                                   .WithUriService(uriService)
+                                   .WithEncryptionService(encryptionService)
+                                   .WithMapper(_mapper)
+                                   .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.Create(new CreateUserRequest());
+            //---------------Test Result -----------------------            
+            encryptionService.Received(1).CreateSalt();
+        }
+
+        [Test]
+        public async Task Create_ShouldCallEncryptPassword()
+        {
+            //---------------Set up test pack-------------------   
+            Uri uri = CreateUri();
+            var encryptionService = Substitute.For<IEncryptionService>();
+            var uriService = Substitute.For<IUriService>();
+
+            uriService.GetUserUri(Arg.Any<string>()).Returns(uri);
+
+            var controller = CreateUsersControllerBuilder()
+                                   .WithUriService(uriService)
+                                   .WithEncryptionService(encryptionService)
+                                   .WithMapper(_mapper)
+                                   .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.Create(new CreateUserRequest());
+            //---------------Test Result -----------------------            
+            encryptionService.Received(1).EncryptPassword(Arg.Any<string>(), Arg.Any<string>());
+        }
+
+        [Test]
+        public async Task Create_ShouldReturnStatusOf201_GivenAUserHasBeenSaved()
+        {
+            //---------------Set up test pack-------------------      
+            Uri uri = CreateUri();
+            var userRequest = CreateUserRequestBuilder.BuildRandom();
+            var encryptionService = Substitute.For<IEncryptionService>();
+            var uriService = Substitute.For<IUriService>();
+
+            uriService.GetUserUri(Arg.Any<string>()).Returns(uri);
+
+            var controller = CreateUsersControllerBuilder()
+                                   .WithUriService(uriService)
+                                   .WithEncryptionService(encryptionService)
+                                   .WithMapper(_mapper)
+                                   .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.Create(userRequest) as CreatedResult;
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.Created, result.StatusCode);
+        }
+
+        [Test]
+        public async Task Create_ShouldSaveAUser_GivenAValidUserObject()
+        {
+            //---------------Set up test pack-------------------      
+            Uri uri = CreateUri();
+            var userRequest = CreateUserRequestBuilder.BuildRandom();            
+            var encryptionService = Substitute.For<IEncryptionService>();
+            var uriService = Substitute.For<IUriService>();
+                        
+            uriService.GetUserUri(Arg.Any<string>()).Returns(uri);
+
+            var controller = CreateUsersControllerBuilder()
+                                   .WithUriService(uriService)            
+                                   .WithEncryptionService(encryptionService)
+                                   .WithMapper(_mapper)
+                                   .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.Create(userRequest) as CreatedResult;
+            //---------------Test Result -----------------------
+            var createdUser = (result.Value as Response<UserResponse>).Data;            
+
+            Assert.AreEqual(userRequest.Username, createdUser.UserName);
+            Assert.AreEqual(userRequest.Email, createdUser.Email);
+        }
+             
 
         private static PaginationQuery CreatePaginationQuery()
         {

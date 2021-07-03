@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ProductsInventory.DB.Domain;
+using ProductsInventory.Persistence.V1.Requests;
 using ProductsInventory.Persistence.V1.Requests.Queries;
 
 namespace ProductsInventory.Server.MappingProfile
@@ -8,7 +9,8 @@ namespace ProductsInventory.Server.MappingProfile
     {
         public RequestToDomainProfile()
         {
-            CreateMap<PaginationQuery, PaginationFilter>();     
+            CreateMap<PaginationQuery, PaginationFilter>();
+            CreateMap<CreateUserRequest, User>();
         }
     }
 }

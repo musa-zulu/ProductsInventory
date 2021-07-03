@@ -22,6 +22,7 @@ namespace ProductInventory.Tests.Persistence.V1.Requests
         [TestCase("Username", typeof(string))]        
         [TestCase("Email", typeof(string))]
         [TestCase("HashedPassword", typeof(string))]
+        [TestCase("Password", typeof(string))]
         [TestCase("Salt", typeof(string))]
         [TestCase("IsLocked", typeof(bool))]
         [TestCase("CreatedBy", typeof(string))]
