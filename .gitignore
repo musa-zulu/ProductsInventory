@@ -1,6 +1,5 @@
 
 source/*/bin/
-source/*/obj/
 source/packages/
 *.suo
 source/buildreports/
@@ -73,3 +72,11 @@ source/.vs/ProductsInventory/config/applicationhost.config
 source/.vs/ProductsInventory/v16/TestStore/0/001.testlog
 
 *.testlog
+
+source/ProductInventory.Tests/obj/Debug/net5.0/
+
+*.props
+
+*.targets
+
+*.cache
