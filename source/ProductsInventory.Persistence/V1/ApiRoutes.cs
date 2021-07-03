@@ -12,6 +12,7 @@
             public const string Update = Base + "/users";
             public const string Delete = Base + "/users/{userId}";
             public const string Get = Base + "/users/{userId}";
+            public const string GetByUsername = Base + "/users/getbyusername/{userName}";
             public const string Create = Base + "/users";
         }
     }

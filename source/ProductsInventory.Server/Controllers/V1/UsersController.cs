@@ -65,5 +65,17 @@ namespace ProductsInventory.Server.Controllers.V1
             var userResponse = _mapper.Map<UserResponse>(user);
             return Ok(new Response<UserResponse>(userResponse));
         }
+
+        [HttpGet(ApiRoutes.Users.GetByUsername)]
+        public async Task<IActionResult> GetByUserName([FromRoute] string userName)
+        {
+            var user = await _userService.GetUserByUserNameAsync(userName);
+
+            if (user == null)
+                return NotFound();
+
+            var userResponse = _mapper.Map<UserResponse>(user);
+            return Ok(new Response<UserResponse>(userResponse));
+        }
     }
 }

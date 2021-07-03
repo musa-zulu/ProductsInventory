@@ -321,6 +321,101 @@ namespace ProductInventory.Tests.Server.Controllers
             Assert.AreEqual(user.Username, pagedResponse.Data.UserName);
         }
 
+        [Test]
+        public void GetByUserName_ShouldHaveHttpGetAttribute()
+        {
+            //---------------Set up test pack-------------------
+            var methodInfo = typeof(UsersController)
+                .GetMethod("GetByUserName");
+            //---------------Assert Precondition----------------
+            Assert.IsNotNull(methodInfo);
+            //---------------Execute Test ----------------------
+            var httpPostAttribute = methodInfo.GetCustomAttribute<HttpGetAttribute>();
+            //---------------Test Result -----------------------
+            Assert.NotNull(httpPostAttribute);
+        }
+
+        [Test]
+        public async Task GetByUserName_ShouldReturnOkResultObject_WhenUserExist()
+        {
+            //---------------Set up test pack-------------------
+            var user = UserBuilder.BuildRandom();
+            var userName = user.Username;
+            var userService = Substitute.For<IUserService>();
+
+            userService.GetUserByUserNameAsync(userName).Returns(user);
+
+            var controller = CreateUsersControllerBuilder()
+                                   .WithUserService(userService)
+                                   .WithMapper(_mapper)
+                                   .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.GetByUserName(userName) as OkObjectResult;
+            //---------------Test Result -----------------------            
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOf<OkObjectResult>(result);
+        }
+
+        [Test]
+        public async Task GetByUserName_ShouldReturnNotFound_WhenUserDoesNotExist()
+        {
+            //---------------Set up test pack-------------------
+            var controller = CreateUsersControllerBuilder().Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.GetByUserName(string.Empty) as NotFoundResult;
+            //---------------Test Result -----------------------            
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.NotFound, result.StatusCode);
+        }
+
+        [Test]
+        public async Task GetByUserName_ShouldCallMappingEngine()
+        {
+            //---------------Set up test pack-------------------
+            var user = UserBuilder.BuildRandom();
+            var userName = user.Username;
+            var userService = Substitute.For<IUserService>();
+            var mappingEngine = Substitute.For<IMapper>();
+
+            userService.GetUserByUserNameAsync(userName).Returns(user);
+
+            var controller = CreateUsersControllerBuilder()
+                .WithMapper(mappingEngine)
+                .WithUserService(userService)
+                .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.GetByUserName(userName);
+            //---------------Test Result -----------------------
+            mappingEngine.Received(1).Map<UserResponse>(user);
+        }
+
+        [Test]
+        public async Task GetByUserName_ShouldReturnUser_WhenUserExist()
+        {
+            //---------------Set up test pack-------------------
+            var user = UserBuilder.BuildRandom();
+            var userName = user.Username;
+            var userService = Substitute.For<IUserService>();
+
+            userService.GetUserByUserNameAsync(userName).Returns(user);
+
+            var controller = CreateUsersControllerBuilder()
+                .WithMapper(_mapper)
+                .WithUserService(userService)
+                .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.GetByUserName(userName) as OkObjectResult;
+            //---------------Test Result -----------------------
+            var pagedResponse = result.Value as Response<UserResponse>;
+            Assert.IsNotNull(pagedResponse);
+            Assert.AreEqual(user.UserId.ToString(), pagedResponse.Data.UserId);
+            Assert.AreEqual(user.Username, pagedResponse.Data.UserName);
+        }
+
         private static PaginationQuery CreatePaginationQuery()
         {
             return new PaginationQuery();
