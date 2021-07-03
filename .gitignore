@@ -1,4 +1,4 @@
-
+source/*/obj/
 source/*/bin/
 source/packages/
 *.suo
