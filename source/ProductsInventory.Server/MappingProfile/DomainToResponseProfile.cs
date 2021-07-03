@@ -8,7 +8,7 @@ namespace ProductsInventory.Server.MappingProfile
     {
         public DomainToResponseProfile()
         {
-            CreateMap<Category, CategoryResponse>().ReverseMap();
+            CreateMap<Category, CategoryResponse>().ReverseMap();            
         }
     }
 }

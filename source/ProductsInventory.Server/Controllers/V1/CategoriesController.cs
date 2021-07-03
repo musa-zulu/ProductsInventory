@@ -80,11 +80,54 @@ namespace ProductsInventory.Server.Controllers.V1
             return Created(locationUri, new Response<CategoryResponse>(_mapper.Map<CategoryResponse>(category)));
         }
 
+        [HttpPut(ApiRoutes.Categories.Update)]
+        public async Task<IActionResult> Update([FromBody] UpdateCategoryRequest request)
+        {
+            if (request.CategoryId == Guid.Empty)
+            {
+                return BadRequest(new ErrorResponse(new ErrorModel { Message = "The category does not exist, or the id is empty." }));
+            }
+
+            UpdateBaseFieldsOn(request);
+
+            var category = _mapper.Map<UpdateCategoryRequest, Category>(request);
+            category.CategoryId = request.CategoryId;
+
+            var isUpdated = await _categoryService.UpdateCategoryAsync(category);
+
+            if (isUpdated)
+                return Ok(new Response<CategoryResponse>(_mapper.Map<CategoryResponse>(category)));
+
+            return NotFound();
+        }
+
+        [HttpDelete(ApiRoutes.Categories.Delete)]
+        public async Task<IActionResult> Delete([FromRoute] Guid categoryId)
+        {
+            if (categoryId == Guid.Empty)
+                return NoContent();
+
+            var deleted = await _categoryService.DeleteCategoryAsync(categoryId);
+
+            if (deleted)
+                return NoContent();
+
+            return NotFound();
+        }
+
         private void SetDefaultFieldsFor(CreateCategoryRequest categoryRequest)
         {
             categoryRequest.CategoryId = Guid.NewGuid();                        
             categoryRequest.DateCreated = DateTimeProvider.Now;
             categoryRequest.DateLastModified = DateTimeProvider.Now;
+        }
+
+        private void UpdateBaseFieldsOn(UpdateCategoryRequest request)
+        {
+            request.DateLastModified = DateTimeProvider.Now;
+
+            
+            request.LastUpdatedBy = HttpContext?.User.Identity.Name ?? "";
         }
     }
 }

@@ -8,6 +8,7 @@ using ProductInventory.Tests.Common.Builders.V1.Requests;
 using ProductsInventory.DB.Domain;
 using ProductsInventory.Persistence.Helpers;
 using ProductsInventory.Persistence.Interfaces.Services;
+using ProductsInventory.Persistence.V1.Requests;
 using ProductsInventory.Persistence.V1.Requests.Queries;
 using ProductsInventory.Persistence.V1.Responses;
 using ProductsInventory.Server.Controllers.V1;
@@ -321,7 +322,7 @@ namespace ProductInventory.Tests.Server.Controllers
             Assert.AreEqual(category.CategoryId, pagedResponse.Data.CategoryId);
             Assert.AreEqual(category.Name, pagedResponse.Data.Name);
         }
-                  
+
 
         [Test]
         public void Create_ShouldHaveHttpPostAttribute()
@@ -342,13 +343,13 @@ namespace ProductInventory.Tests.Server.Controllers
         {
             //---------------Set up test pack-------------------      
             Uri uri = CreateUri();
-            var categoryRequest = CreateCategoryRequestBuilder.BuildRandom();            
+            var categoryRequest = CreateCategoryRequestBuilder.BuildRandom();
             var uriService = Substitute.For<IUriService>();
 
             uriService.GetCategoryUri(Arg.Any<string>()).Returns(uri);
 
             var controller = CreateCategoriesControllerBuilder()
-                                   .WithUriService(uriService)                                   
+                                   .WithUriService(uriService)
                                    .WithMapper(_mapper)
                                    .Build();
             //---------------Assert Precondition----------------
@@ -364,13 +365,13 @@ namespace ProductInventory.Tests.Server.Controllers
         {
             //---------------Set up test pack-------------------      
             Uri uri = CreateUri();
-            var categoryRequest = CreateCategoryRequestBuilder.BuildRandom();            
+            var categoryRequest = CreateCategoryRequestBuilder.BuildRandom();
             var uriService = Substitute.For<IUriService>();
 
             uriService.GetCategoryUri(Arg.Any<string>()).Returns(uri);
 
             var controller = CreateCategoriesControllerBuilder()
-                                   .WithUriService(uriService)                                   
+                                   .WithUriService(uriService)
                                    .WithMapper(_mapper)
                                    .Build();
             //---------------Assert Precondition----------------
@@ -381,6 +382,167 @@ namespace ProductInventory.Tests.Server.Controllers
 
             Assert.AreEqual(categoryRequest.Name, createdCategory.Name);
             Assert.AreEqual(categoryRequest.IsActive, createdCategory.IsActive);
+        }
+
+        [Test]
+        public void Update_ShouldHaveHttpPutAttribute()
+        {
+            //---------------Set up test pack-------------------
+            var methodInfo = typeof(CategoriesController)
+                .GetMethod("Update");
+            //---------------Assert Precondition----------------
+            Assert.IsNotNull(methodInfo);
+            //---------------Execute Test ----------------------
+            var httpPostAttribute = methodInfo.GetCustomAttribute<HttpPutAttribute>();
+            //---------------Test Result -----------------------
+            Assert.NotNull(httpPostAttribute);
+        }
+
+        [Test]
+        public async Task Update_ShouldReturnBadRequest_GivenACategoryIdIsEmpty()
+        {
+            //---------------Set up test pack-------------------
+            var request = new UpdateCategoryRequest
+            {
+                CategoryId = Guid.Empty
+            };
+            var controller = CreateCategoriesControllerBuilder()
+                                   .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.Update(request) as BadRequestObjectResult;
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.BadRequest, result.StatusCode);
+        }
+
+        [Test]
+        public async Task Update_ShouldReturnBadRequestWithMessage_GivenACategoryIdIsEmpty()
+        {
+            //---------------Set up test pack-------------------
+            var request = new UpdateCategoryRequest
+            {
+                CategoryId = Guid.Empty
+            };
+            var controller = CreateCategoriesControllerBuilder()
+                                   .Build();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = await controller.Update(request) as BadRequestObjectResult;
+            //---------------Test Result -----------------------
+            var response = result.Value as ErrorResponse;
+            Assert.AreEqual(1, response.Errors.Count);
+            Assert.AreEqual("The category does not exist, or the id is empty.", response.Errors[0].Message);
+        }
+
+        [Test]
+        public async Task Update_ShouldReturnNotfound_GivenACategoryHasNotBeenUpdated()
+        {
+            //---------------Set up test pack-------------------
+            var request = new UpdateCategoryRequest
+            {
+                CategoryId = Guid.NewGuid(),
+                CategoryCode = "BBB123"
+            };
+            var category = CategoryBuilder.BuildRandom();
+            var categoryService = Substitute.For<ICategoryService>();
+            await categoryService.CreateCategoryAsync(category);
+            var controller = CreateCategoriesControllerBuilder()
+                .WithCategoryService(categoryService)
+                .WithMapper(_mapper).Build();
+            //---------------Assert Precondition----------------           
+            //---------------Execute Test ----------------------
+            var result = await controller.Update(request) as NotFoundResult;
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.NotFound, result.StatusCode);
+        }
+
+        [Test]
+        public async Task Update_ShouldReturnOkStatus_GivenACategoryHasBeenUpdated()
+        {
+            //---------------Set up test pack-------------------
+            var request = new UpdateCategoryRequest
+            {
+                CategoryId = Guid.NewGuid(),
+                CategoryCode = "BBB123"
+            };
+            
+            var categoryService = Substitute.For<ICategoryService>();
+            categoryService.UpdateCategoryAsync(Arg.Any<Category>()).Returns(true);
+            var controller = CreateCategoriesControllerBuilder()
+                .WithCategoryService(categoryService)
+                .WithMapper(_mapper).Build();
+            //---------------Assert Precondition----------------           
+            //---------------Execute Test ----------------------
+            var result = await controller.Update(request) as OkObjectResult;
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.OK, result.StatusCode);
+        }
+
+        [Test]
+        public void Delete_ShouldHaveHttpDeleteAttribute()
+        {
+            //---------------Set up test pack-------------------
+            var methodInfo = typeof(CategoriesController)
+                .GetMethod("Delete");
+            //---------------Assert Precondition----------------
+            Assert.IsNotNull(methodInfo);
+            //---------------Execute Test ----------------------
+            var httpPostAttribute = methodInfo.GetCustomAttribute<HttpDeleteAttribute>();
+            //---------------Test Result -----------------------
+            Assert.NotNull(httpPostAttribute);
+        }
+
+        [Test]
+        public async Task Delete_ShouldReturnNoContent_GivenACategoryIdIsEmpty()
+        {
+            //---------------Set up test pack-------------------
+            var controller = CreateCategoriesControllerBuilder()
+                                   .Build();
+            //---------------Assert Precondition----------------            
+            //---------------Execute Test ----------------------
+            var result = await controller.Delete(Guid.Empty) as NoContentResult;
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.NoContent, result.StatusCode);
+        }
+
+        [Test]
+        public async Task Delete_ShouldReturnNotFound_GivenACategoryHasNotBeenDeleted()
+        {
+            //---------------Set up test pack-------------------
+            var category = CategoryBuilder.BuildRandom();
+            var categoryService = Substitute.For<ICategoryService>();
+            categoryService.GetCategoryByIdAsync(category.CategoryId).Returns(category);
+            var controller = CreateCategoriesControllerBuilder()
+                                   .WithCategoryService(categoryService)
+                                   .Build();
+            //---------------Assert Precondition----------------            
+            //---------------Execute Test ----------------------
+            var result = await controller.Delete(category.CategoryId) as NotFoundResult;
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.NotFound, result.StatusCode);
+        }
+
+        [Test]
+        public async Task Delete_ShouldReturnNoContent_GivenACategoryHasBeenDeleted()
+        {
+            //---------------Set up test pack-------------------
+            var category = CategoryBuilder.BuildRandom();
+            var categoryService = Substitute.For<ICategoryService>();
+            categoryService.DeleteCategoryAsync(category.CategoryId).Returns(true);
+            var controller = CreateCategoriesControllerBuilder()
+                                   .WithCategoryService(categoryService)
+                                   .Build();
+            //---------------Assert Precondition----------------            
+            //---------------Execute Test ----------------------
+            var result = await controller.Delete(category.CategoryId) as NoContentResult;
+            //---------------Test Result -----------------------
+            Assert.IsNotNull(result);
+            Assert.AreEqual((int)HttpStatusCode.NoContent, result.StatusCode);
         }
 
         private static PaginationQuery CreatePaginationQuery()
