@@ -125,8 +125,6 @@ namespace ProductsInventory.Server.Controllers.V1
         private void UpdateBaseFieldsOn(UpdateCategoryRequest request)
         {
             request.DateLastModified = DateTimeProvider.Now;
-
-            
             request.LastUpdatedBy = HttpContext?.User.Identity.Name ?? "";
         }
     }
