@@ -88,7 +88,7 @@ namespace ProductsInventory.Server.Controllers.V1
         {
             if (request.ProductId == Guid.Empty)
             {
-                return BadRequest(new ErrorResponse(new ErrorModel { Message = "The product does not exist, or the id is empty." }));
+                return InvalidRequest("The product does not exist, or the id is empty.");
             }
 
             UpdateBaseFieldsOn(request);

@@ -150,6 +150,78 @@ namespace ProductInventory.Tests.Server.Controllers
             Assert.AreEqual("Please login...", response.Errors[0].Message);
         }
 
+        [Test]
+        public void InvalidRequest_ShouldReturnBadRequestWithMessage_GivenAMessage()
+        {
+            //---------------Set up test pack-------------------
+            var message = "this is a test message";
+            ControllerBase controller = CreateBaseController();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = controller.InvalidRequest(message) as Microsoft.AspNetCore.Mvc.BadRequestObjectResult;
+            //---------------Test Result -----------------------
+            var response = result.Value as ErrorResponse;
+            Assert.AreEqual(1, response.Errors.Count);
+            Assert.AreEqual(message, response.Errors[0].Message);
+        }
+
+        [Test]
+        public void ValidateCategoryCode_ShouldReturnErrorMessage_GivenLengthIsLessThenSix()
+        {
+            string message = getErrorMessage();
+            ControllerBase controller = CreateBaseController();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = controller.ValidateCategoryCode("av1");
+            //---------------Test Result -----------------------                        
+            Assert.AreEqual(message, result);
+        }
+        
+        [Test]
+        public void ValidateCategoryCode_ShouldReturnErrorMessage_GivenFirstThreeCharsAreNotValid()
+        {
+            //---------------Set up test pack-------------------
+            var message = getErrorMessage();
+            ControllerBase controller = CreateBaseController();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = controller.ValidateCategoryCode("av1236");
+            //---------------Test Result -----------------------                        
+            Assert.AreEqual(message, result);
+        }
+
+        [Test]
+        public void ValidateCategoryCode_ShouldReturnEmptyMessage_GivenValidCodeAndLastThreeCharsAreValid()
+        {
+            //---------------Set up test pack-------------------
+            var message = "";
+            ControllerBase controller = CreateBaseController();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = controller.ValidateCategoryCode("ABC123");
+            //---------------Test Result -----------------------                        
+            Assert.AreEqual(message, result);
+        }
+
+        [Test]
+        public void ValidateCategoryCode_ShouldReturnErrorMessage_GivenLastThreeCharsAreInvalidValid()
+        {
+            //---------------Set up test pack-------------------
+            var message = getErrorMessage();
+            ControllerBase controller = CreateBaseController();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var result = controller.ValidateCategoryCode("ABC12E");
+            //---------------Test Result -----------------------                        
+            Assert.AreEqual(message, result);
+        }
+
+        private static string getErrorMessage()
+        {
+            //---------------Set up test pack-------------------
+            return "Invalid code format, code must be 3 alphabet letters and three numeric characters e.g., ABC123.";
+        }
+
         private static ClaimsPrincipal GetLoggedInUser()
         {
             var claims = new List<Claim>()
