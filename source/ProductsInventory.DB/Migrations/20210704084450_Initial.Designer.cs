@@ -10,8 +10,8 @@ using ProductsInventory.DB;
 namespace ProductsInventory.DB.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210703180503_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20210704084450_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -246,6 +246,9 @@ namespace ProductsInventory.DB.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("CategoryId");
 

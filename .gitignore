@@ -80,3 +80,5 @@ source/ProductInventory.Tests/obj/Debug/net5.0/
 *.targets
 
 *.cache
+
+*.v2

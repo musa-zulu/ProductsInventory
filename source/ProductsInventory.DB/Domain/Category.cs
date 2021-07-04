@@ -13,5 +13,7 @@ namespace ProductsInventory.DB.Domain
         public string CategoryCode { get; set; }
         [Required]
         public bool IsActive { get; set; }
+
+        public Guid UserId { get; set; }
     }
 }

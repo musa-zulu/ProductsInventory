@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProductsInventory.DB.Domain;
 using ProductsInventory.Persistence.Helpers;
@@ -10,6 +11,8 @@ using ProductsInventory.Persistence.V1.Responses;
 using ProductsInventory.Server.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ProductsInventory.Server.Controllers.V1
@@ -20,6 +23,7 @@ namespace ProductsInventory.Server.Controllers.V1
         private readonly IMapper _mapper;
         private readonly ICategoryService _categoryService;
         private IDateTimeProvider _dateTimeProvider;
+        private HttpContext _httpContext;
 
         public CategoriesController(ICategoryService categoryService, IMapper mapper, IUriService uriService)
         {
@@ -38,13 +42,27 @@ namespace ProductsInventory.Server.Controllers.V1
             }
         }
 
+        public HttpContext Context
+        {
+            get { return _httpContext ??= HttpContext; }
+            set
+            {
+                if (_httpContext != null) throw new InvalidOperationException("HttpContext is already set");
+                _httpContext = value;
+            }
+        }
+
         [HttpGet(ApiRoutes.Categories.GetAll)]
         public async Task<IActionResult> GetAll([FromQuery] PaginationQuery paginationQuery)
         {
+            Guid userId = GetLoggedInUserId();
             var pagination = _mapper.Map<PaginationFilter>(paginationQuery);
 
             var categories = await _categoryService.GetCategoriesAsync(pagination);
-            var categoryResponse = _mapper.Map<List<CategoryResponse>>(categories);
+
+            var userCategories = categories?.Where(x => x.UserId == userId);
+            var categoryResponse = _mapper.Map<List<CategoryResponse>>(userCategories);
+
 
             if (pagination == null || pagination.PageNumber < 1 || pagination.PageSize < 1)
             {
@@ -58,15 +76,15 @@ namespace ProductsInventory.Server.Controllers.V1
         [HttpGet(ApiRoutes.Categories.Get)]
         public async Task<IActionResult> Get([FromRoute] Guid categoryId)
         {
+            Guid userId = GetLoggedInUserId();
             var category = await _categoryService.GetCategoryByIdAsync(categoryId);
-
-            if (category == null)
+            
+            if (category == null || category.UserId != userId)
                 return NotFound();
 
             var categoryResponse = _mapper.Map<CategoryResponse>(category);
             return Ok(new Response<CategoryResponse>(categoryResponse));
         }
-
 
         [HttpPost(ApiRoutes.Categories.Create)]
         public async Task<IActionResult> Create([FromBody] CreateCategoryRequest categoryRequest)
@@ -117,15 +135,23 @@ namespace ProductsInventory.Server.Controllers.V1
 
         private void SetDefaultFieldsFor(CreateCategoryRequest categoryRequest)
         {
-            categoryRequest.CategoryId = Guid.NewGuid();                        
+            Guid userId = GetLoggedInUserId();
+            categoryRequest.CategoryId = Guid.NewGuid();
             categoryRequest.DateCreated = DateTimeProvider.Now;
             categoryRequest.DateLastModified = DateTimeProvider.Now;
+            categoryRequest.UserId = userId;
         }
 
         private void UpdateBaseFieldsOn(UpdateCategoryRequest request)
         {
+            Guid userId = GetLoggedInUserId();
             request.DateLastModified = DateTimeProvider.Now;
-            request.LastUpdatedBy = HttpContext?.User.Identity.Name ?? "";
+            request.LastUpdatedBy = Context?.User.Identity.Name ?? "";
+            request.UserId = userId;
+        }
+        private Guid GetLoggedInUserId()
+        {
+            return Guid.Parse(Context?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         }
     }
 }

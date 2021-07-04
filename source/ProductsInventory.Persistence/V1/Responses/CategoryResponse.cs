@@ -9,5 +9,6 @@ namespace ProductsInventory.Persistence.V1.Responses
         public string Name { get; set; }        
         public string CategoryCode { get; set; }        
         public bool IsActive { get; set; }
+        public Guid UserId { get; set; }
     }
 }

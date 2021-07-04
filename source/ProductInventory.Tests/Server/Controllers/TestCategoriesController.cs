@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NUnit.Framework;
@@ -18,6 +19,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace ProductInventory.Tests.Server.Controllers
@@ -136,15 +139,21 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Set up test pack-------------------            
             var mappingEngine = Substitute.For<IMapper>();
             var paginationQuery = CreatePaginationQuery();
+            var httpContext = Substitute.For<HttpContext>();
+
+            ClaimsPrincipal claimsPrincipal = GetLoggedInUser();
+            httpContext.User = claimsPrincipal;
+
             var controller = CreateCategoriesControllerBuilder()
                 .WithMapper(mappingEngine)
                 .Build();
             //---------------Assert Precondition----------------
+            controller.Context = httpContext;
             //---------------Execute Test ----------------------
             var result = await controller.GetAll(paginationQuery);
             //---------------Test Result -----------------------
             mappingEngine.Received(1).Map<PaginationFilter>(paginationQuery);
-        }
+        }       
 
         [Test]
         public async Task GetAll_ShouldReturnOkResultObject_WhenCategoryExist()
@@ -154,8 +163,12 @@ namespace ProductInventory.Tests.Server.Controllers
             List<Category> categories = CreateCategories(category);
             var uriService = Substitute.For<IUriService>();
             var categoryService = Substitute.For<ICategoryService>();
+            var httpContext = Substitute.For<HttpContext>();
             var paginationQuery = CreatePaginationQuery();
             Uri uri = CreateUri();
+
+            ClaimsPrincipal claimsPrincipal = GetLoggedInUser();
+            httpContext.User = claimsPrincipal;
 
             uriService.GetAllUri(Arg.Any<PaginationQuery>()).Returns(uri);
             categoryService.GetCategoriesAsync(Arg.Any<PaginationFilter>()).Returns(categories);
@@ -165,6 +178,7 @@ namespace ProductInventory.Tests.Server.Controllers
                                    .WithUriService(uriService)
                                    .Build();
             //---------------Assert Precondition----------------
+            controller.Context = httpContext;
             //---------------Execute Test ----------------------
             var result = await controller.GetAll(paginationQuery) as OkObjectResult;
             //---------------Test Result -----------------------            
@@ -180,6 +194,8 @@ namespace ProductInventory.Tests.Server.Controllers
             List<Category> categories = CreateCategories(category);
             var categoryService = Substitute.For<ICategoryService>();
             var paginationQuery = CreatePaginationQuery();
+            HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
+            SetUserIdToCategory(category, claimsPrincipal);
             var uriService = Substitute.For<IUriService>();
             Uri uri = CreateUri();
 
@@ -192,6 +208,7 @@ namespace ProductInventory.Tests.Server.Controllers
                                    .WithUriService(uriService)
                                    .Build();
             //---------------Assert Precondition----------------
+            controller.Context = httpContext;
             //---------------Execute Test ----------------------
             var result = await controller.GetAll(paginationQuery) as OkObjectResult;
             //---------------Test Result -----------------------
@@ -205,6 +222,8 @@ namespace ProductInventory.Tests.Server.Controllers
         {
             //---------------Set up test pack-------------------
             var category = CategoryBuilder.BuildRandom();
+            HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
+            SetUserIdToCategory(category, claimsPrincipal);
             List<Category> categories = CreateCategories(category);
             var categoryService = Substitute.For<ICategoryService>();
             var paginationQuery = CreatePaginationQuery();
@@ -220,6 +239,7 @@ namespace ProductInventory.Tests.Server.Controllers
                                    .WithUriService(uriService)
                                    .Build();
             //---------------Assert Precondition----------------
+            controller.Context = httpContext;
             //---------------Execute Test ----------------------
             var result = await controller.GetAll(paginationQuery) as OkObjectResult;
             //---------------Test Result -----------------------
@@ -249,6 +269,8 @@ namespace ProductInventory.Tests.Server.Controllers
             var category = CategoryBuilder.BuildRandom();
             var categoryId = category.CategoryId;
             var categoryService = Substitute.For<ICategoryService>();
+            HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
+            SetUserIdToCategory(category, claimsPrincipal);
 
             categoryService.GetCategoryByIdAsync(categoryId).Returns(category);
 
@@ -257,6 +279,7 @@ namespace ProductInventory.Tests.Server.Controllers
                                    .WithMapper(_mapper)
                                    .Build();
             //---------------Assert Precondition----------------
+            controller.Context = httpContext;
             //---------------Execute Test ----------------------
             var result = await controller.Get(categoryId) as OkObjectResult;
             //---------------Test Result -----------------------            
@@ -268,8 +291,10 @@ namespace ProductInventory.Tests.Server.Controllers
         public async Task Get_ShouldReturnNotFound_WhenCategoryDoesNotExist()
         {
             //---------------Set up test pack-------------------
+            HttpContextSetup(out HttpContext httpContext, out _);
             var controller = CreateCategoriesControllerBuilder().Build();
             //---------------Assert Precondition----------------
+            controller.Context = httpContext;
             //---------------Execute Test ----------------------
             var result = await controller.Get(Guid.Empty) as NotFoundResult;
             //---------------Test Result -----------------------            
@@ -284,7 +309,9 @@ namespace ProductInventory.Tests.Server.Controllers
             var category = CategoryBuilder.BuildRandom();
             var categoryId = category.CategoryId;
             var categoryService = Substitute.For<ICategoryService>();
-            var mappingEngine = Substitute.For<IMapper>();
+            var mappingEngine = Substitute.For<IMapper>();            
+            HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
+            SetUserIdToCategory(category, claimsPrincipal);
 
             categoryService.GetCategoryByIdAsync(categoryId).Returns(category);
 
@@ -293,6 +320,7 @@ namespace ProductInventory.Tests.Server.Controllers
                 .WithCategoryService(categoryService)
                 .Build();
             //---------------Assert Precondition----------------
+            controller.Context = httpContext;
             //---------------Execute Test ----------------------
             var result = await controller.Get(categoryId);
             //---------------Test Result -----------------------
@@ -305,8 +333,9 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Set up test pack-------------------
             var category = CategoryBuilder.BuildRandom();
             var categoryId = category.CategoryId;
-            var categoryService = Substitute.For<ICategoryService>();
-
+            var categoryService = Substitute.For<ICategoryService>();            
+            HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
+            SetUserIdToCategory(category, claimsPrincipal);
             categoryService.GetCategoryByIdAsync(categoryId).Returns(category);
 
             var controller = CreateCategoriesControllerBuilder()
@@ -314,6 +343,7 @@ namespace ProductInventory.Tests.Server.Controllers
                 .WithCategoryService(categoryService)
                 .Build();
             //---------------Assert Precondition----------------
+            controller.Context = httpContext;
             //---------------Execute Test ----------------------
             var result = await controller.Get(categoryId) as OkObjectResult;
             //---------------Test Result -----------------------
@@ -343,6 +373,7 @@ namespace ProductInventory.Tests.Server.Controllers
         {
             //---------------Set up test pack-------------------      
             Uri uri = CreateUri();
+            HttpContextSetup(out HttpContext httpContext, out _);
             var categoryRequest = CreateCategoryRequestBuilder.BuildRandom();
             var uriService = Substitute.For<IUriService>();
 
@@ -353,6 +384,7 @@ namespace ProductInventory.Tests.Server.Controllers
                                    .WithMapper(_mapper)
                                    .Build();
             //---------------Assert Precondition----------------
+            controller.Context = httpContext;
             //---------------Execute Test ----------------------
             var result = await controller.Create(categoryRequest) as CreatedResult;
             //---------------Test Result -----------------------
@@ -367,7 +399,7 @@ namespace ProductInventory.Tests.Server.Controllers
             Uri uri = CreateUri();
             var categoryRequest = CreateCategoryRequestBuilder.BuildRandom();
             var uriService = Substitute.For<IUriService>();
-
+            HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);            
             uriService.GetCategoryUri(Arg.Any<string>()).Returns(uri);
 
             var controller = CreateCategoriesControllerBuilder()
@@ -375,6 +407,7 @@ namespace ProductInventory.Tests.Server.Controllers
                                    .WithMapper(_mapper)
                                    .Build();
             //---------------Assert Precondition----------------
+            controller.Context = httpContext;
             //---------------Execute Test ----------------------
             var result = await controller.Create(categoryRequest) as CreatedResult;
             //---------------Test Result -----------------------
@@ -447,10 +480,13 @@ namespace ProductInventory.Tests.Server.Controllers
             var category = CategoryBuilder.BuildRandom();
             var categoryService = Substitute.For<ICategoryService>();
             await categoryService.CreateCategoryAsync(category);
+            HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
+            SetUserIdToCategory(category, claimsPrincipal);
             var controller = CreateCategoriesControllerBuilder()
                 .WithCategoryService(categoryService)
                 .WithMapper(_mapper).Build();
             //---------------Assert Precondition----------------           
+            controller.Context = httpContext;
             //---------------Execute Test ----------------------
             var result = await controller.Update(request) as NotFoundResult;
             //---------------Test Result -----------------------
@@ -467,13 +503,15 @@ namespace ProductInventory.Tests.Server.Controllers
                 CategoryId = Guid.NewGuid(),
                 CategoryCode = "BBB123"
             };
-            
+
             var categoryService = Substitute.For<ICategoryService>();
+            HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);            
             categoryService.UpdateCategoryAsync(Arg.Any<Category>()).Returns(true);
             var controller = CreateCategoriesControllerBuilder()
                 .WithCategoryService(categoryService)
                 .WithMapper(_mapper).Build();
             //---------------Assert Precondition----------------           
+            controller.Context = httpContext;
             //---------------Execute Test ----------------------
             var result = await controller.Update(request) as OkObjectResult;
             //---------------Test Result -----------------------
@@ -545,6 +583,34 @@ namespace ProductInventory.Tests.Server.Controllers
             Assert.AreEqual((int)HttpStatusCode.NoContent, result.StatusCode);
         }
 
+        [Test]
+        public void HttpContextProvider_GivenSetHttpContextProvider_ShouldHttpContextProviderOnFirstCall()
+        {
+            //---------------Set up test pack-------------------
+            var controller = CreateCategoriesControllerBuilder().Build();
+            var httpContext = Substitute.For<HttpContext>();
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            controller.Context = httpContext;
+            //---------------Test Result -----------------------
+            Assert.AreSame(httpContext, controller.Context);
+        }
+
+        [Test]
+        public void HttpContextProvider_GivenSetHttpContextProviderIsSet_ShouldThrowOnCall()
+        {
+            //---------------Set up test pack-------------------
+            var controller = CreateCategoriesControllerBuilder().Build();
+            var httpContextProvider = Substitute.For<HttpContext>();
+            var httpContextProvider1 = Substitute.For<HttpContext>();
+            controller.Context = httpContextProvider;
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var ex = Assert.Throws<InvalidOperationException>(() => controller.Context = httpContextProvider1);
+            //---------------Test Result -----------------------
+            Assert.AreEqual("HttpContext is already set", ex.Message);
+        }
+
         private static PaginationQuery CreatePaginationQuery()
         {
             return new PaginationQuery();
@@ -559,6 +625,28 @@ namespace ProductInventory.Tests.Server.Controllers
             {
                 category
             };
+        }
+        private static void SetUserIdToCategory(Category category, ClaimsPrincipal claimsPrincipal)
+        {
+            category.UserId = Guid.Parse(claimsPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        }
+        private static ClaimsPrincipal GetLoggedInUser()
+        {
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Name, "username"),
+                new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+                new Claim("name", "John Doe"),
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+            return claimsPrincipal;
+        }
+        private static void HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal)
+        {
+            httpContext = Substitute.For<HttpContext>();
+            claimsPrincipal = GetLoggedInUser();
+            httpContext.User = claimsPrincipal;
         }
         private static CategoriesControllerBuilder CreateCategoriesControllerBuilder()
         {

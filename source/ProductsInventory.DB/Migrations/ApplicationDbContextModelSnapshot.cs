@@ -245,6 +245,9 @@ namespace ProductsInventory.DB.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("CategoryId");
 
                     b.ToTable("Categories");
