@@ -64,5 +64,20 @@ namespace ProductInventory.Tests.Persistence.Services
             //---------------Test Result -----------------------            
             Assert.AreEqual(modifiedUrl, results.AbsoluteUri);
         }
+
+        [Test]
+        public void GetProductUri_GivenProductId_ShouldReturnModifiedUri()
+        {
+            //---------------Set up test pack-------------------
+            var baseUri = "localhost:4000/";
+            var productId = Guid.NewGuid().ToString();
+            var uriService = new UriService(baseUri);
+            var modifiedUrl = "localhost:4000/api/v1/products/" + productId;
+            //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            var results = uriService.GetProductUri(productId);
+            //---------------Test Result -----------------------            
+            Assert.AreEqual(modifiedUrl, results.AbsoluteUri);
+        }
     }
 }

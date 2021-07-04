@@ -1,12 +1,12 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
 using ProductsInventory.Persistence.V1.Requests;
+using System;
 
 namespace ProductInventory.Tests.Persistence.V1.Requests
 {
     [TestFixture]
-    public class TestCreateCategoryRequest
+    public class TestUpdateProductRequest
     {
         [Test]
         public void Construct()
@@ -14,19 +14,26 @@ namespace ProductInventory.Tests.Persistence.V1.Requests
             //---------------Set up test pack-------------------
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => new CreateCategoryRequest());
+            Assert.DoesNotThrow(() => new UpdateProductRequest());
             //---------------Test Result -----------------------
         }
 
+
+        [TestCase("ProductId", typeof(Guid))]
+        [TestCase("ProductCode", typeof(string))]
+        [TestCase("Name", typeof(string))]
+        [TestCase("Description", typeof(string))]
+        [TestCase("Price", typeof(decimal))]
+        [TestCase("ImagePath", typeof(string))]
         [TestCase("CategoryId", typeof(Guid))]
-        [TestCase("Name", typeof(string))]        
-        [TestCase("CategoryCode", typeof(string))]
-        [TestCase("IsActive", typeof(bool))]
         [TestCase("UserId", typeof(Guid))]
-        public void CreateCategoryRequest_ShouldHaveProperty(string propertyName, Type propertyType)
+        [TestCase("LastUpdatedBy", typeof(string))]
+        [TestCase("DateCreated", typeof(DateTime?))]
+        [TestCase("DateLastModified", typeof(DateTime?))]
+        public void UpdateProductRequest_ShouldHaveProperty(string propertyName, Type propertyType)
         {
             //---------------Set up test pack-------------------
-            var sut = typeof(CreateCategoryRequest);
+            var sut = typeof(UpdateProductRequest);
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
             sut.ShouldHaveProperty(propertyName, propertyType);

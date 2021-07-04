@@ -18,6 +18,7 @@ namespace ProductsInventory.Server.Installers
 
             services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
             services.AddScoped<ICategoryService, CategoryService>();            
+            services.AddScoped<IProductService, ProductService>();            
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
         }

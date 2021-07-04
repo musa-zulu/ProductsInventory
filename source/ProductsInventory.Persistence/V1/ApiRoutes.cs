@@ -21,5 +21,14 @@
             public const string Logout = Base + "/account/logout";       
             public const string Register = Base + "/account/register";       
         }
+
+        public static class Products
+        {
+            public const string GetAll = Base + "/products";
+            public const string Update = Base + "/products";
+            public const string Delete = Base + "/products/{productId}";
+            public const string Get = Base + "/products/{productId}";
+            public const string Create = Base + "/products";
+        }
     }
 }

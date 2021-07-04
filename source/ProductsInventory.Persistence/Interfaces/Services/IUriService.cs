@@ -7,5 +7,6 @@ namespace ProductsInventory.Persistence.Interfaces.Services
     {
         Uri GetAllUri(PaginationQuery pagination = null);
         Uri GetCategoryUri(string categoryId);
+        Uri GetProductUri(string productId);
     }
 }

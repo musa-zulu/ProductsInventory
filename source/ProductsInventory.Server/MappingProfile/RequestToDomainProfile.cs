@@ -11,7 +11,9 @@ namespace ProductsInventory.Server.MappingProfile
         {
             CreateMap<PaginationQuery, PaginationFilter>();
             CreateMap<CreateCategoryRequest, Category>();
+            CreateMap<CreateProductRequest, Product>();
             CreateMap<UpdateCategoryRequest, Category>();            
+            CreateMap<UpdateProductRequest, Product>();            
         }
     }
 }

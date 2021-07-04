@@ -25,11 +25,11 @@ using System.Threading.Tasks;
 namespace ProductInventory.Tests.Server.Controllers
 {
     [TestFixture]
-    public class TestCategoriesController
+    public class TestProductsController
     {
         private static IMapper _mapper;
 
-        public TestCategoriesController()
+        public TestProductsController()
         {
             if (_mapper == null)
             {
@@ -50,20 +50,20 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
             Assert.DoesNotThrow(() =>
-                new CategoriesController(Substitute.For<ICategoryService>(), Substitute.For<IMapper>(), Substitute.For<IUriService>()));
+                new ProductsController(Substitute.For<IProductService>(), Substitute.For<IMapper>(), Substitute.For<IUriService>()));
             //---------------Test Result -----------------------
         }
 
         [Test]
-        public void Construct_GivenICategoryServiceIsNull_ShouldThrow()
+        public void Construct_GivenIProductServiceIsNull_ShouldThrow()
         {
             //---------------Set up test pack-------------------
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
             var ex = Assert.Throws<ArgumentNullException>(() =>
-                    new CategoriesController(null, Substitute.For<IMapper>(), Substitute.For<IUriService>()));
+                    new ProductsController(null, Substitute.For<IMapper>(), Substitute.For<IUriService>()));
             //---------------Test Result -----------------------
-            Assert.AreEqual("categoryService", ex.ParamName);
+            Assert.AreEqual("productService", ex.ParamName);
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
             var ex = Assert.Throws<ArgumentNullException>(() =>
-                    new CategoriesController(Substitute.For<ICategoryService>(), null, Substitute.For<IUriService>()));
+                    new ProductsController(Substitute.For<IProductService>(), null, Substitute.For<IUriService>()));
             //---------------Test Result -----------------------
             Assert.AreEqual("mapper", ex.ParamName);
         }
@@ -85,7 +85,7 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
             var ex = Assert.Throws<ArgumentNullException>(() =>
-                    new CategoriesController(Substitute.For<ICategoryService>(), Substitute.For<IMapper>(), null));
+                    new ProductsController(Substitute.For<IProductService>(), Substitute.For<IMapper>(), null));
             //---------------Test Result -----------------------
             Assert.AreEqual("uriService", ex.ParamName);
         }
@@ -94,7 +94,7 @@ namespace ProductInventory.Tests.Server.Controllers
         public void DateTimeProvider_GivenSetDateTimeProvider_ShouldSetDateTimeProviderOnFirstCall()
         {
             //---------------Set up test pack-------------------
-            var controller = CreateCategoriesControllerBuilder().Build();
+            var controller = CreateProductsControllerBuilder().Build();
             var dateTimeProvider = Substitute.For<IDateTimeProvider>();
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
@@ -107,7 +107,7 @@ namespace ProductInventory.Tests.Server.Controllers
         public void DateTimeProvider_GivenSetDateTimeProviderIsSet_ShouldThrowOnCall()
         {
             //---------------Set up test pack-------------------
-            var controller = CreateCategoriesControllerBuilder().Build();
+            var controller = CreateProductsControllerBuilder().Build();
             var dateTimeProvider = Substitute.For<IDateTimeProvider>();
             var dateTimeProvider1 = Substitute.For<IDateTimeProvider>();
             controller.DateTimeProvider = dateTimeProvider;
@@ -122,7 +122,7 @@ namespace ProductInventory.Tests.Server.Controllers
         public void GetAll_ShouldHaveHttpGetAttribute()
         {
             //---------------Set up test pack-------------------
-            var methodInfo = typeof(CategoriesController)
+            var methodInfo = typeof(ProductsController)
                 .GetMethod("GetAll");
             //---------------Assert Precondition----------------
             Assert.IsNotNull(methodInfo);
@@ -143,7 +143,7 @@ namespace ProductInventory.Tests.Server.Controllers
             ClaimsPrincipal claimsPrincipal = GetLoggedInUser();
             httpContext.User = claimsPrincipal;
 
-            var controller = CreateCategoriesControllerBuilder()
+            var controller = CreateProductsControllerBuilder()
                 .WithMapper(mappingEngine)
                 .Build();
             //---------------Assert Precondition----------------
@@ -152,16 +152,16 @@ namespace ProductInventory.Tests.Server.Controllers
             var result = await controller.GetAll(paginationQuery);
             //---------------Test Result -----------------------
             mappingEngine.Received(1).Map<PaginationFilter>(paginationQuery);
-        }       
+        }
 
         [Test]
-        public async Task GetAll_ShouldReturnOkResultObject_WhenCategoryExist()
+        public async Task GetAll_ShouldReturnOkResultObject_WhenProductExist()
         {
             //---------------Set up test pack-------------------
-            var category = CategoryBuilder.BuildRandom();
-            List<Category> categories = CreateCategories(category);
+            var product = ProductBuilder.BuildRandom();
+            List<Product> products = CreateProducts(product);
             var uriService = Substitute.For<IUriService>();
-            var categoryService = Substitute.For<ICategoryService>();
+            var productService = Substitute.For<IProductService>();
             var httpContext = Substitute.For<HttpContext>();
             var paginationQuery = CreatePaginationQuery();
             Uri uri = CreateUri();
@@ -170,9 +170,9 @@ namespace ProductInventory.Tests.Server.Controllers
             httpContext.User = claimsPrincipal;
 
             uriService.GetAllUri(Arg.Any<PaginationQuery>()).Returns(uri);
-            categoryService.GetCategoriesAsync(Arg.Any<PaginationFilter>()).Returns(categories);
-            var controller = CreateCategoriesControllerBuilder()
-                                   .WithCategoryService(categoryService)
+            productService.GetProductsAsync(Arg.Any<PaginationFilter>()).Returns(products);
+            var controller = CreateProductsControllerBuilder()
+                                   .WithProductService(productService)
                                    .WithMapper(_mapper)
                                    .WithUriService(uriService)
                                    .Build();
@@ -186,23 +186,23 @@ namespace ProductInventory.Tests.Server.Controllers
         }
 
         [Test]
-        public async Task GetAll_ShouldReturnCountOfOne_WhenCategoryExist()
+        public async Task GetAll_ShouldReturnCountOfOne_WhenProductExist()
         {
             //---------------Set up test pack-------------------
-            var category = CategoryBuilder.BuildRandom();
-            List<Category> categories = CreateCategories(category);
-            var categoryService = Substitute.For<ICategoryService>();
+            var product = ProductBuilder.BuildRandom();
+            List<Product> products = CreateProducts(product);
+            var productService = Substitute.For<IProductService>();
             var paginationQuery = CreatePaginationQuery();
             HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
-            SetUserIdToCategory(category, claimsPrincipal);
+            SetUserIdToProduct(product, claimsPrincipal);
             var uriService = Substitute.For<IUriService>();
             Uri uri = CreateUri();
 
             uriService.GetAllUri(Arg.Any<PaginationQuery>()).Returns(uri);
-            categoryService.GetCategoriesAsync(Arg.Any<PaginationFilter>()).Returns(categories);
+            productService.GetProductsAsync(Arg.Any<PaginationFilter>()).Returns(products);
 
-            var controller = CreateCategoriesControllerBuilder()
-                                   .WithCategoryService(categoryService)
+            var controller = CreateProductsControllerBuilder()
+                                   .WithProductService(productService)
                                    .WithMapper(_mapper)
                                    .WithUriService(uriService)
                                    .Build();
@@ -211,29 +211,29 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Execute Test ----------------------
             var result = await controller.GetAll(paginationQuery) as OkObjectResult;
             //---------------Test Result -----------------------
-            var pagedResponse = result.Value as PagedResponse<CategoryResponse>;
+            var pagedResponse = result.Value as PagedResponse<ProductResponse>;
             Assert.IsNotNull(pagedResponse);
             Assert.AreEqual(1, pagedResponse.Data.Count());
         }
 
         [Test]
-        public async Task GetAll_ShouldReturnCategory_WhenCategoryExist()
+        public async Task GetAll_ShouldReturnProduct_WhenProductExist()
         {
             //---------------Set up test pack-------------------
-            var category = CategoryBuilder.BuildRandom();
+            var product = ProductBuilder.BuildRandom();
             HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
-            SetUserIdToCategory(category, claimsPrincipal);
-            List<Category> categories = CreateCategories(category);
-            var categoryService = Substitute.For<ICategoryService>();
+            SetUserIdToProduct(product, claimsPrincipal);
+            List<Product> products = CreateProducts(product);
+            var productService = Substitute.For<IProductService>();
             var paginationQuery = CreatePaginationQuery();
             var uriService = Substitute.For<IUriService>();
             Uri uri = CreateUri();
 
             uriService.GetAllUri(Arg.Any<PaginationQuery>()).Returns(uri);
-            categoryService.GetCategoriesAsync(Arg.Any<PaginationFilter>()).Returns(categories);
+            productService.GetProductsAsync(Arg.Any<PaginationFilter>()).Returns(products);
 
-            var controller = CreateCategoriesControllerBuilder()
-                                   .WithCategoryService(categoryService)
+            var controller = CreateProductsControllerBuilder()
+                                   .WithProductService(productService)
                                    .WithMapper(_mapper)
                                    .WithUriService(uriService)
                                    .Build();
@@ -242,16 +242,16 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Execute Test ----------------------
             var result = await controller.GetAll(paginationQuery) as OkObjectResult;
             //---------------Test Result -----------------------
-            var pagedResponse = result.Value as PagedResponse<CategoryResponse>;
+            var pagedResponse = result.Value as PagedResponse<ProductResponse>;
             Assert.IsNotNull(pagedResponse);
-            Assert.AreEqual(category.Name, pagedResponse.Data.FirstOrDefault().Name);
+            Assert.AreEqual(product.Name, pagedResponse.Data.FirstOrDefault().Name);
         }
 
         [Test]
         public void Get_ShouldHaveHttpGetAttribute()
         {
             //---------------Set up test pack-------------------
-            var methodInfo = typeof(CategoriesController)
+            var methodInfo = typeof(ProductsController)
                 .GetMethod("Get");
             //---------------Assert Precondition----------------
             Assert.IsNotNull(methodInfo);
@@ -262,36 +262,36 @@ namespace ProductInventory.Tests.Server.Controllers
         }
 
         [Test]
-        public async Task Get_ShouldReturnOkResultObject_WhenCategoryExist()
+        public async Task Get_ShouldReturnOkResultObject_WhenProductExist()
         {
             //---------------Set up test pack-------------------
-            var category = CategoryBuilder.BuildRandom();
-            var categoryId = category.CategoryId;
-            var categoryService = Substitute.For<ICategoryService>();
+            var product = ProductBuilder.BuildRandom();
+            var productId = product.ProductId;
+            var productService = Substitute.For<IProductService>();
             HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
-            SetUserIdToCategory(category, claimsPrincipal);
+            SetUserIdToProduct(product, claimsPrincipal);
 
-            categoryService.GetCategoryByIdAsync(categoryId).Returns(category);
+            productService.GetProductByIdAsync(productId).Returns(product);
 
-            var controller = CreateCategoriesControllerBuilder()
-                                   .WithCategoryService(categoryService)
+            var controller = CreateProductsControllerBuilder()
+                                   .WithProductService(productService)
                                    .WithMapper(_mapper)
                                    .Build();
             //---------------Assert Precondition----------------
             controller.Context = httpContext;
             //---------------Execute Test ----------------------
-            var result = await controller.Get(categoryId) as OkObjectResult;
+            var result = await controller.Get(productId) as OkObjectResult;
             //---------------Test Result -----------------------            
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<OkObjectResult>(result);
         }
 
         [Test]
-        public async Task Get_ShouldReturnNotFound_WhenCategoryDoesNotExist()
+        public async Task Get_ShouldReturnNotFound_WhenProductDoesNotExist()
         {
             //---------------Set up test pack-------------------
             HttpContextSetup(out HttpContext httpContext, out _);
-            var controller = CreateCategoriesControllerBuilder().Build();
+            var controller = CreateProductsControllerBuilder().Build();
             //---------------Assert Precondition----------------
             controller.Context = httpContext;
             //---------------Execute Test ----------------------
@@ -305,51 +305,51 @@ namespace ProductInventory.Tests.Server.Controllers
         public async Task Get_ShouldCallMappingEngine()
         {
             //---------------Set up test pack-------------------
-            var category = CategoryBuilder.BuildRandom();
-            var categoryId = category.CategoryId;
-            var categoryService = Substitute.For<ICategoryService>();
-            var mappingEngine = Substitute.For<IMapper>();            
+            var product = ProductBuilder.BuildRandom();
+            var productId = product.ProductId;
+            var productService = Substitute.For<IProductService>();
+            var mappingEngine = Substitute.For<IMapper>();
             HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
-            SetUserIdToCategory(category, claimsPrincipal);
+            SetUserIdToProduct(product, claimsPrincipal);
 
-            categoryService.GetCategoryByIdAsync(categoryId).Returns(category);
+            productService.GetProductByIdAsync(productId).Returns(product);
 
-            var controller = CreateCategoriesControllerBuilder()
+            var controller = CreateProductsControllerBuilder()
                 .WithMapper(mappingEngine)
-                .WithCategoryService(categoryService)
+                .WithProductService(productService)
                 .Build();
             //---------------Assert Precondition----------------
             controller.Context = httpContext;
             //---------------Execute Test ----------------------
-            var result = await controller.Get(categoryId);
+            var result = await controller.Get(productId);
             //---------------Test Result -----------------------
-            mappingEngine.Received(1).Map<CategoryResponse>(category);
+            mappingEngine.Received(1).Map<ProductResponse>(product);
         }
 
         [Test]
-        public async Task Get_ShouldReturnCategory_WhenCategoryExist()
+        public async Task Get_ShouldReturnProduct_WhenProductExist()
         {
             //---------------Set up test pack-------------------
-            var category = CategoryBuilder.BuildRandom();
-            var categoryId = category.CategoryId;
-            var categoryService = Substitute.For<ICategoryService>();            
+            var product = ProductBuilder.BuildRandom();
+            var productId = product.ProductId;
+            var productService = Substitute.For<IProductService>();
             HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
-            SetUserIdToCategory(category, claimsPrincipal);
-            categoryService.GetCategoryByIdAsync(categoryId).Returns(category);
+            SetUserIdToProduct(product, claimsPrincipal);
+            productService.GetProductByIdAsync(productId).Returns(product);
 
-            var controller = CreateCategoriesControllerBuilder()
+            var controller = CreateProductsControllerBuilder()
                 .WithMapper(_mapper)
-                .WithCategoryService(categoryService)
+                .WithProductService(productService)
                 .Build();
             //---------------Assert Precondition----------------
             controller.Context = httpContext;
             //---------------Execute Test ----------------------
-            var result = await controller.Get(categoryId) as OkObjectResult;
+            var result = await controller.Get(productId) as OkObjectResult;
             //---------------Test Result -----------------------
-            var pagedResponse = result.Value as Response<CategoryResponse>;
+            var pagedResponse = result.Value as Response<ProductResponse>;
             Assert.IsNotNull(pagedResponse);
-            Assert.AreEqual(category.CategoryId, pagedResponse.Data.CategoryId);
-            Assert.AreEqual(category.Name, pagedResponse.Data.Name);
+            Assert.AreEqual(product.ProductId, pagedResponse.Data.ProductId);
+            Assert.AreEqual(product.Name, pagedResponse.Data.Name);
         }
 
 
@@ -357,7 +357,7 @@ namespace ProductInventory.Tests.Server.Controllers
         public void Create_ShouldHaveHttpPostAttribute()
         {
             //---------------Set up test pack-------------------
-            var methodInfo = typeof(CategoriesController)
+            var methodInfo = typeof(ProductsController)
                 .GetMethod("Create");
             //---------------Assert Precondition----------------
             Assert.IsNotNull(methodInfo);
@@ -368,61 +368,59 @@ namespace ProductInventory.Tests.Server.Controllers
         }
 
         [Test]
-        public async Task Create_ShouldReturnStatusOf201_GivenACategoryHasBeenSaved()
+        public async Task Create_ShouldReturnStatusOf201_GivenAProductHasBeenSaved()
         {
             //---------------Set up test pack-------------------      
             Uri uri = CreateUri();
             HttpContextSetup(out HttpContext httpContext, out _);
-            var categoryRequest = CreateCategoryRequestBuilder.BuildRandom();
-            categoryRequest.CategoryCode = "ABC123";
+            var productRequest = CreateProductRequestBuilder.BuildRandom();
             var uriService = Substitute.For<IUriService>();
 
-            uriService.GetCategoryUri(Arg.Any<string>()).Returns(uri);
+            uriService.GetProductUri(Arg.Any<string>()).Returns(uri);
 
-            var controller = CreateCategoriesControllerBuilder()
+            var controller = CreateProductsControllerBuilder()
                                    .WithUriService(uriService)
                                    .WithMapper(_mapper)
                                    .Build();
             //---------------Assert Precondition----------------
             controller.Context = httpContext;
             //---------------Execute Test ----------------------
-            var result = await controller.Create(categoryRequest) as CreatedResult;
+            var result = await controller.Create(productRequest) as CreatedResult;
             //---------------Test Result -----------------------
             Assert.IsNotNull(result);
             Assert.AreEqual((int)HttpStatusCode.Created, result.StatusCode);
         }
 
         [Test]
-        public async Task Create_ShouldSaveCategory_GivenAValidCategoryObject()
+        public async Task Create_ShouldSaveProduct_GivenAValidProductObject()
         {
             //---------------Set up test pack-------------------      
             Uri uri = CreateUri();
-            var categoryRequest = CreateCategoryRequestBuilder.BuildRandom();
-            categoryRequest.CategoryCode = "abc123";
+            var productRequest = CreateProductRequestBuilder.BuildRandom();
             var uriService = Substitute.For<IUriService>();
-            HttpContextSetup(out HttpContext httpContext, out _);            
-            uriService.GetCategoryUri(Arg.Any<string>()).Returns(uri);
+            HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
+            uriService.GetProductUri(Arg.Any<string>()).Returns(uri);
 
-            var controller = CreateCategoriesControllerBuilder()
+            var controller = CreateProductsControllerBuilder()
                                    .WithUriService(uriService)
                                    .WithMapper(_mapper)
                                    .Build();
             //---------------Assert Precondition----------------
             controller.Context = httpContext;
             //---------------Execute Test ----------------------
-            var result = await controller.Create(categoryRequest) as CreatedResult;
+            var result = await controller.Create(productRequest) as CreatedResult;
             //---------------Test Result -----------------------
-            var createdCategory = (result.Value as Response<CategoryResponse>).Data;
+            var createdProduct = (result.Value as Response<ProductResponse>).Data;
 
-            Assert.AreEqual(categoryRequest.Name, createdCategory.Name);
-            Assert.AreEqual(categoryRequest.IsActive, createdCategory.IsActive);
+            Assert.AreEqual(productRequest.Name, createdProduct.Name);
+            Assert.AreEqual(productRequest.ProductId, createdProduct.ProductId);            
         }
 
         [Test]
         public void Update_ShouldHaveHttpPutAttribute()
         {
             //---------------Set up test pack-------------------
-            var methodInfo = typeof(CategoriesController)
+            var methodInfo = typeof(ProductsController)
                 .GetMethod("Update");
             //---------------Assert Precondition----------------
             Assert.IsNotNull(methodInfo);
@@ -433,14 +431,14 @@ namespace ProductInventory.Tests.Server.Controllers
         }
 
         [Test]
-        public async Task Update_ShouldReturnBadRequest_GivenACategoryIdIsEmpty()
+        public async Task Update_ShouldReturnBadRequest_GivenAProductIdIsEmpty()
         {
             //---------------Set up test pack-------------------
-            var request = new UpdateCategoryRequest
+            var request = new UpdateProductRequest
             {
-                CategoryId = Guid.Empty
+                ProductId = Guid.Empty
             };
-            var controller = CreateCategoriesControllerBuilder()
+            var controller = CreateProductsControllerBuilder()
                                    .Build();
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
@@ -451,14 +449,14 @@ namespace ProductInventory.Tests.Server.Controllers
         }
 
         [Test]
-        public async Task Update_ShouldReturnBadRequestWithMessage_GivenACategoryIdIsEmpty()
+        public async Task Update_ShouldReturnBadRequestWithMessage_GivenAProductIdIsEmpty()
         {
             //---------------Set up test pack-------------------
-            var request = new UpdateCategoryRequest
+            var request = new UpdateProductRequest
             {
-                CategoryId = Guid.Empty
+                ProductId = Guid.Empty
             };
-            var controller = CreateCategoriesControllerBuilder()
+            var controller = CreateProductsControllerBuilder()
                                    .Build();
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
@@ -466,25 +464,25 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Test Result -----------------------
             var response = result.Value as ErrorResponse;
             Assert.AreEqual(1, response.Errors.Count);
-            Assert.AreEqual("The category does not exist, or the id is empty.", response.Errors[0].Message);
+            Assert.AreEqual("The product does not exist, or the id is empty.", response.Errors[0].Message);
         }
 
         [Test]
-        public async Task Update_ShouldReturnNotfound_GivenACategoryHasNotBeenUpdated()
+        public async Task Update_ShouldReturnNotfound_GivenAProductHasNotBeenUpdated()
         {
             //---------------Set up test pack-------------------
-            var request = new UpdateCategoryRequest
+            var request = new UpdateProductRequest
             {
-                CategoryId = Guid.NewGuid(),
-                CategoryCode = "BBB123"
+                ProductId = Guid.NewGuid(),
+                ProductCode = "BBB123"
             };
-            var category = CategoryBuilder.BuildRandom();
-            var categoryService = Substitute.For<ICategoryService>();
-            await categoryService.CreateCategoryAsync(category);
+            var product = ProductBuilder.BuildRandom();
+            var productService = Substitute.For<IProductService>();
+            await productService.CreateProductAsync(product);
             HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
-            SetUserIdToCategory(category, claimsPrincipal);
-            var controller = CreateCategoriesControllerBuilder()
-                .WithCategoryService(categoryService)
+            SetUserIdToProduct(product, claimsPrincipal);
+            var controller = CreateProductsControllerBuilder()
+                .WithProductService(productService)
                 .WithMapper(_mapper).Build();
             //---------------Assert Precondition----------------           
             controller.Context = httpContext;
@@ -496,20 +494,20 @@ namespace ProductInventory.Tests.Server.Controllers
         }
 
         [Test]
-        public async Task Update_ShouldReturnOkStatus_GivenACategoryHasBeenUpdated()
+        public async Task Update_ShouldReturnOkStatus_GivenAProductHasBeenUpdated()
         {
             //---------------Set up test pack-------------------
-            var request = new UpdateCategoryRequest
+            var request = new UpdateProductRequest
             {
-                CategoryId = Guid.NewGuid(),
-                CategoryCode = "BBB123"
+                ProductId = Guid.NewGuid(),
+                ProductCode = "BBB123"
             };
 
-            var categoryService = Substitute.For<ICategoryService>();
-            HttpContextSetup(out HttpContext httpContext, out _);            
-            categoryService.UpdateCategoryAsync(Arg.Any<Category>()).Returns(true);
-            var controller = CreateCategoriesControllerBuilder()
-                .WithCategoryService(categoryService)
+            var productService = Substitute.For<IProductService>();
+            HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
+            productService.UpdateProductAsync(Arg.Any<Product>()).Returns(true);
+            var controller = CreateProductsControllerBuilder()
+                .WithProductService(productService)
                 .WithMapper(_mapper).Build();
             //---------------Assert Precondition----------------           
             controller.Context = httpContext;
@@ -524,7 +522,7 @@ namespace ProductInventory.Tests.Server.Controllers
         public void Delete_ShouldHaveHttpDeleteAttribute()
         {
             //---------------Set up test pack-------------------
-            var methodInfo = typeof(CategoriesController)
+            var methodInfo = typeof(ProductsController)
                 .GetMethod("Delete");
             //---------------Assert Precondition----------------
             Assert.IsNotNull(methodInfo);
@@ -535,10 +533,10 @@ namespace ProductInventory.Tests.Server.Controllers
         }
 
         [Test]
-        public async Task Delete_ShouldReturnNoContent_GivenACategoryIdIsEmpty()
+        public async Task Delete_ShouldReturnNoContent_GivenAProductIdIsEmpty()
         {
             //---------------Set up test pack-------------------
-            var controller = CreateCategoriesControllerBuilder()
+            var controller = CreateProductsControllerBuilder()
                                    .Build();
             //---------------Assert Precondition----------------            
             //---------------Execute Test ----------------------
@@ -549,36 +547,36 @@ namespace ProductInventory.Tests.Server.Controllers
         }
 
         [Test]
-        public async Task Delete_ShouldReturnNotFound_GivenACategoryHasNotBeenDeleted()
+        public async Task Delete_ShouldReturnNotFound_GivenAProductHasNotBeenDeleted()
         {
             //---------------Set up test pack-------------------
-            var category = CategoryBuilder.BuildRandom();
-            var categoryService = Substitute.For<ICategoryService>();
-            categoryService.GetCategoryByIdAsync(category.CategoryId).Returns(category);
-            var controller = CreateCategoriesControllerBuilder()
-                                   .WithCategoryService(categoryService)
+            var product = ProductBuilder.BuildRandom();
+            var productService = Substitute.For<IProductService>();
+            productService.GetProductByIdAsync(product.ProductId).Returns(product);
+            var controller = CreateProductsControllerBuilder()
+                                   .WithProductService(productService)
                                    .Build();
             //---------------Assert Precondition----------------            
             //---------------Execute Test ----------------------
-            var result = await controller.Delete(category.CategoryId) as NotFoundResult;
+            var result = await controller.Delete(product.ProductId) as NotFoundResult;
             //---------------Test Result -----------------------
             Assert.IsNotNull(result);
             Assert.AreEqual((int)HttpStatusCode.NotFound, result.StatusCode);
         }
 
         [Test]
-        public async Task Delete_ShouldReturnNoContent_GivenACategoryHasBeenDeleted()
+        public async Task Delete_ShouldReturnNoContent_GivenAProductHasBeenDeleted()
         {
             //---------------Set up test pack-------------------
-            var category = CategoryBuilder.BuildRandom();
-            var categoryService = Substitute.For<ICategoryService>();
-            categoryService.DeleteCategoryAsync(category.CategoryId).Returns(true);
-            var controller = CreateCategoriesControllerBuilder()
-                                   .WithCategoryService(categoryService)
+            var product = ProductBuilder.BuildRandom();
+            var productService = Substitute.For<IProductService>();
+            productService.DeleteProductAsync(product.ProductId).Returns(true);
+            var controller = CreateProductsControllerBuilder()
+                                   .WithProductService(productService)
                                    .Build();
             //---------------Assert Precondition----------------            
             //---------------Execute Test ----------------------
-            var result = await controller.Delete(category.CategoryId) as NoContentResult;
+            var result = await controller.Delete(product.ProductId) as NoContentResult;
             //---------------Test Result -----------------------
             Assert.IsNotNull(result);
             Assert.AreEqual((int)HttpStatusCode.NoContent, result.StatusCode);
@@ -588,7 +586,7 @@ namespace ProductInventory.Tests.Server.Controllers
         public void HttpContextProvider_GivenSetHttpContextProvider_ShouldHttpContextProviderOnFirstCall()
         {
             //---------------Set up test pack-------------------
-            var controller = CreateCategoriesControllerBuilder().Build();
+            var controller = CreateProductsControllerBuilder().Build();
             var httpContext = Substitute.For<HttpContext>();
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
@@ -601,7 +599,7 @@ namespace ProductInventory.Tests.Server.Controllers
         public void HttpContextProvider_GivenSetHttpContextProviderIsSet_ShouldThrowOnCall()
         {
             //---------------Set up test pack-------------------
-            var controller = CreateCategoriesControllerBuilder().Build();
+            var controller = CreateProductsControllerBuilder().Build();
             var httpContextProvider = Substitute.For<HttpContext>();
             var httpContextProvider1 = Substitute.For<HttpContext>();
             controller.Context = httpContextProvider;
@@ -620,16 +618,16 @@ namespace ProductInventory.Tests.Server.Controllers
         {
             return new Uri("localhost:4000?pageNumber=1&pageSize=10");
         }
-        private static List<Category> CreateCategories(Category category)
+        private static List<Product> CreateProducts(Product product)
         {
-            return new List<Category>
+            return new List<Product>
             {
-                category
+                product
             };
         }
-        private static void SetUserIdToCategory(Category category, ClaimsPrincipal claimsPrincipal)
+        private static void SetUserIdToProduct(Product product, ClaimsPrincipal claimsPrincipal)
         {
-            category.UserId = Guid.Parse(claimsPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            product.UserId = Guid.Parse(claimsPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         }
         private static ClaimsPrincipal GetLoggedInUser()
         {
@@ -649,9 +647,9 @@ namespace ProductInventory.Tests.Server.Controllers
             claimsPrincipal = GetLoggedInUser();
             httpContext.User = claimsPrincipal;
         }
-        private static CategoriesControllerBuilder CreateCategoriesControllerBuilder()
+        private static ProductsControllerBuilder CreateProductsControllerBuilder()
         {
-            return new CategoriesControllerBuilder();
+            return new ProductsControllerBuilder();
         }
     }
 }

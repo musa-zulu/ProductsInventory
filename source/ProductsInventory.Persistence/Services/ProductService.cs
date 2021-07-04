@@ -20,10 +20,16 @@ namespace ProductsInventory.Persistence.Services
         public async Task<bool> CreateProductAsync(Product product)
         {
             var isSaved = false;
+            var savedProducts = await GetProductsAsync();
+            var newProductCode = string.Empty;
+            bool isValidProductCode = ValidateProductCode(product, savedProducts, ref newProductCode);
             try
             {
-                _dataContext.Products.Add(product);
-                isSaved = await _dataContext.SaveChangesAsync() > 0;
+                if (isValidProductCode)
+                {
+                    _dataContext.Products.Add(product);
+                    isSaved = await _dataContext.SaveChangesAsync() > 0;
+                }
             }
             catch (Exception)
             {
@@ -67,6 +73,34 @@ namespace ProductsInventory.Persistence.Services
         {
             _dataContext.Products.Update(productToUpdate);
             return await _dataContext.SaveChangesAsync() > 0;
+        }
+
+        private static string GenerateProductCode()
+        {
+            int value = new Random().Next(1000);
+            string randomCode = value.ToString("000");
+
+            var dtCode = DateTime.Now.ToString("yyyyMM");
+            string productCode = $"{dtCode}-{randomCode}";
+            return productCode;
+        }
+
+        private static bool ValidateProductCode(Product product, List<Product> savedProducts, ref string newProductCode)
+        {
+            bool isValidProductCode;
+            bool exist = savedProducts.Any(x => x.ProductCode == product.ProductCode);
+            isValidProductCode = !exist;
+            if (exist)
+            {
+                while (savedProducts.Any(x => x.ProductCode == GenerateProductCode()))
+                {
+                    newProductCode = GenerateProductCode();
+                }
+                product.ProductCode = newProductCode;
+                isValidProductCode = true;
+            }
+
+            return isValidProductCode;
         }
     }
 }
