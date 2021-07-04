@@ -20,7 +20,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace ProductInventory.Tests.Server.Controllers
