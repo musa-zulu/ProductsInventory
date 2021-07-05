@@ -4,15 +4,17 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { DashBordComponent } from './dash-bord/dash-bord.component';
 import { AppRoutingModule } from './app-routing.module';
+import { NavBarComponent } from './nav-bar/nav-bar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    DashBordComponent
+    DashBordComponent,
+    NavBarComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
