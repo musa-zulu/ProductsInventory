@@ -1,3 +1,26 @@
-<p>
-  dash-bord works!
-</p>
+<div class="row" style="max-width: 100%;">
+
+  <div class="col-3">
+    <button class="btn btn-outline-primary btn-block"
+            [class.active]="currentCategory === null"
+            (click)="setCurrentCategory(null)">
+        All Categories
+    </button>
+    <button *ngFor="let category of categories"
+            class="btn btn-outline-primary btn-block"
+            [class.active]="currentCategory === category.categoryId"
+            (click)="setCurrentCategory(category.categoryId)" style="max-width: 100%;">
+        {{category.name}}
+    </button>
+  </div>  
+  <div class="col">
+    <div class="row">
+      <ng-container *ngFor="let product of filteredProducts; let i = index">
+        <div class="col">
+           <app-product-card [product]="product"></app-product-card>
+        </div>
+        <div *ngIf="(i + 1) % 2 === 0" class="w-100"></div>
+      </ng-container>
+  </div>
+</div>
+</div>

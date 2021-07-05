@@ -1,0 +1,56 @@
+<div id="registerModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">        
+        <h1 class="text-center">
+          <span class="fa-stack fa-1x">
+            <i class="fa fa-circle fa-stack-2x text-primary"></i>
+            <i class="fa fa-user-plus fa-stack-1x fa-inverse"></i>
+          </span>Register
+        </h1>
+      </div>   
+      <div [hidden]="!isInvalid" class="modal-body" style="color: red;">
+        <h6>*** Passwords must have at least one digit (0-9).</h6>
+        <h6>*** Passwords must have at least one uppercase (A-Z).</h6>
+        <h6>*** Passwords must have at least one non alphanumeric character.</h6>
+      </div>   
+      <div class="modal-body">        
+        <form class="form col-md-12 center-block" #registerForm="ngForm" (ngSubmit)="register(registerForm.value)">
+          <div class="form-group">
+            <input type="email" class="form-control input-lg" placeholder="Email" [(ngModel)]="registerModel.email"
+              name="email" #email="ngModel" required>
+            <div [hidden]="email.valid || email.untouched" class="alert alert-danger">
+              Email is required
+            </div>
+          </div>
+          <div class="form-group">
+            <input type="password" class="form-control input-lg" placeholder="Password"
+              [(ngModel)]="registerModel.password" name="password" #password="ngModel" required>
+            <div [hidden]="password.valid || password.untouched" class="alert alert-danger">
+              Password is required
+            </div>
+          </div>
+          <div class="form-group">
+            <input type="password" class="form-control input-lg" placeholder="confirmPassword"
+              [(ngModel)]="registerModel.confirmPassword" name="confirmPassword" #confirmPassword="ngModel" required>
+            <div [hidden]="confirmPassword.valid || confirmPassword.untouched" class="alert alert-danger">
+              this field is required
+            </div>
+            <div [hidden]="confirmPassword.value === password.value" class="alert alert-danger">
+              passwords don't match
+            </div>
+          </div>
+          <div class="form-group">
+            <button class="btn btn-primary btn-lg btn-block" [disabled]="!registerForm.form.valid || (confirmPassword.value !== password.value)">Register</button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <div class="col-md-12">
+          <a class="btn btn-danger pull-left" [routerLink]="['/']" data-dismiss="modal"
+            aria-hidden="true">Cancel</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
