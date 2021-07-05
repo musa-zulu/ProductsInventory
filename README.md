@@ -80,7 +80,7 @@ This Products Inventory api contains following features.
 - [x] Versioning
 - [x] Swagger
 - [x] Authentication
-- [x] Angular 7+ for UI
+- [x] Angular 8+ for UI
 - [X] Unit Testing
 
 ## Project description

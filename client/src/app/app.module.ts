@@ -11,6 +11,11 @@ import { ProductsService } from './shared/services/products.service';
 import { RegisterComponent } from './shared/components/account/register/register.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LoginComponent } from './shared/components/account/login/login.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { AngularFontAwesomeModule } from 'angular-font-awesome';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatTableModule } from '@angular/material';
+
 
 @NgModule({
   declarations: [
@@ -26,7 +31,15 @@ import { LoginComponent } from './shared/components/account/login/login.componen
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgbModule,
+    AngularFontAwesomeModule,
+    MatTableModule,
+    BrowserAnimationsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
   ],
   providers: [CategoryService, ProductsService],
   bootstrap: [AppComponent]
