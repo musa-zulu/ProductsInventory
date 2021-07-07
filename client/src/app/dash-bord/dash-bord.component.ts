@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Category } from '../shared/models/category';
 import { Product } from '../shared/models/product';
+import { AccountService } from '../shared/services/account.service';
 import { CategoryService } from '../shared/services/category.service';
 
 @Component({
@@ -15,12 +17,13 @@ export class DashBordComponent implements OnInit {
   category: Category;
   executed = false;
   filteredProducts: Product[] = [];
+  products: Product[] = [];
 
   constructor(private _categoryService: CategoryService) { }
 
-  ngOnInit() {
-    this.getCategories();
-    this.setCurrentCategory(null);
+  ngOnInit() {       
+    this.getCategories();   
+    this.setCurrentCategory(null);   
   }
 
   setCurrentCategory(newCategory: string) {
@@ -37,32 +40,27 @@ export class DashBordComponent implements OnInit {
        this.categories = await categories.data;       
        if (!this.executed) {
         this.executed = true;
-        this.populateProductsFor(this.categories);
+        this.applyFilter(null);
        }
     });
   }
 
-  populateProductsFor(categories: Category[]) {
-    categories.forEach(element => {
-      element.products.forEach(fi => {
-        if (this.filteredProducts.indexOf(fi) === -1) {
-          this.filteredProducts.push(fi);
-        }
-      });
-    });
-  }
-
-  applyFilter(categoryId: string) {
+  private applyFilter(categoryId: string) {
     let category = [];
-    
+    this.products = [];
     if (categoryId !== null) {
       category = this.categories.filter(x => x.categoryId === categoryId);
-      
+      this.products = category[0].products;
     } else {
       (this.categories || []).forEach(cItem => {
-        
-        
+        cItem.products.forEach(item => {
+          if (this.products.indexOf(item) === -1) {
+            item.imagePath = "https://localhost:5001/" + item.imagePath;
+            this.products.push(item);
+          }
+        });
       });
     }
   }
 }
+

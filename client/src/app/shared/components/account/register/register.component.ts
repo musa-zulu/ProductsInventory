@@ -26,6 +26,8 @@ export class RegisterComponent implements OnInit {
         this.registerModel
       );
       if (registered) {
+        localStorage.removeItem("userDetails");
+        localStorage.setItem("userDetails", JSON.stringify(this.registerModel.email));      
         this._router.navigate(['/dashbord']);
       } else {
         this.isInvalid = true;

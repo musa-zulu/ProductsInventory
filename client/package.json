@@ -24,6 +24,7 @@
     "@ng-bootstrap/ng-bootstrap": "^5.2.1",
     "angular-font-awesome": "^3.1.2",
     "bootstrap": "^4.4.1",
+    "file-saver": "^2.0.5",
     "hammerjs": "^2.0.8",
     "i": "^0.3.6",
     "mdata-table": "^0.9.9",

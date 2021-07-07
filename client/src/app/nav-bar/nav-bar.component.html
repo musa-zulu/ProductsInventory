@@ -19,8 +19,9 @@
       <ul class="navbar-nav">
         <a class="nav-link" routerLink="categories">Manage Categories</a>
         <a class="nav-link" routerLink="products">Manage Products</a>        
-        <a class="nav-link" routerLink="register">Register</a>        
-        <a class="nav-link" routerLink="login">Login</a>        
+        <a *ngIf="!userDetails" class="nav-link" routerLink="register">Register</a>        
+        <a *ngIf="!userDetails" class="nav-link" routerLink="login">Login</a>        
+        <button type="button" *ngIf="userDetails" (click)="logout()">{{userDetails}} Logout</button> 
       </ul>
     </div>
   </div>

@@ -9,12 +9,21 @@ import { ProductCardComponent } from './shared/components/product-card/product-c
 import { CategoryService } from './shared/services/category.service';
 import { ProductsService } from './shared/services/products.service';
 import { RegisterComponent } from './shared/components/account/register/register.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { LoginComponent } from './shared/components/account/login/login.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatTableModule } from '@angular/material';
+import { MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatSortModule, MatTableModule } from '@angular/material';
+import { ProductFormComponent } from './components/products/product-form/product-form.component';
+import { FileUploadComponent } from './shared/components/file-upload/file-upload.component';
+import { CategoriesComponent } from './components/categories/categories.component';
+import { DialogBoxComponent } from './components/categories/dialog-box/dialog-box.component';
+import { CustomFormsModule } from 'ng2-validation';
+import { AlertComponent } from './shared/components/alert/alert.component';
+import { CommonModule } from '@angular/common';
+import { AlertService } from './shared/services/alert.service';
+import { AddEditProductDialogBoxComponent } from './components/products/add-edit-product-dialog-box/add-edit-product-dialog-box.component';
 
 
 @NgModule({
@@ -24,14 +33,21 @@ import { MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, M
     NavBarComponent,
     ProductCardComponent,
     RegisterComponent,
-    LoginComponent
+    LoginComponent,
+    ProductFormComponent,
+    FileUploadComponent,
+    CategoriesComponent,
+    DialogBoxComponent,
+    AlertComponent,
+    AddEditProductDialogBoxComponent
   ],
   imports: [
+    FormsModule,
+    CustomFormsModule,
     BrowserModule,
     AppRoutingModule,
+    BrowserAnimationsModule,
     HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
     NgbModule,
     AngularFontAwesomeModule,
     MatTableModule,
@@ -40,8 +56,12 @@ import { MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, M
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    CommonModule,
+    MatPaginatorModule,    
+    MatSortModule
   ],
-  providers: [CategoryService, ProductsService],
+  entryComponents: [DialogBoxComponent, AddEditProductDialogBoxComponent],
+  providers: [CategoryService, ProductsService, AlertService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

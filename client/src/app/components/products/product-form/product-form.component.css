@@ -1,0 +1,12 @@
+table {
+    width: 100%;
+  }
+  
+  td {
+    cursor: pointer;
+  }
+  
+
+  [input] {
+    width: 100% !important;
+  }

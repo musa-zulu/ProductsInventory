@@ -1,8 +1,8 @@
 <div *ngIf="product.name" class="card">
-  <img *ngIf="product.imagePath" class="card-img-top" [src]="product.imagePath" alt="{{ product.title }}">
-  <div class="card-body">
+  <img *ngIf="product.imagePath" class="card-img-top" [src]="product.imagePath" alt="{{ product.name }}">
+  <div class="card-body">    
     <h4 class="card-title">{{ product.name }}</h4>
-    <h6 class="card-text">{{ product.description }}</h6>
+    <h6 class="card-text">{{ product.description }}</h6>    
     <h6 class="card-text">{{ product.price | currency:'ZAR ':true }}</h6>
   </div>
 </div>

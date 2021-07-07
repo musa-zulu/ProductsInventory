@@ -8,7 +8,8 @@ export class Category {
     dateLastModified: Date;   
     createdBy: string;
     lastUpdatedBy: string;
-
     products: Product[];
+    userId: string;
+    userName: string;
 }
 

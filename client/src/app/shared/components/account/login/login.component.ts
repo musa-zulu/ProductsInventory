@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
+import { GetUserDto } from "src/app/shared/Dtos/get-user-dto";
 import { Login } from "src/app/shared/models/login";
 import { AccountService } from "src/app/shared/services/account.service";
 
@@ -20,7 +21,11 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.isInvalid = false;
-    this._accountService.login(this.loginModel).then(() => {      
+    this._accountService.login(this.loginModel).then((result) => {
+      let userObj = new GetUserDto();
+      userObj.email = result.email;
+      userObj.userId = result.id;
+      localStorage.setItem("userDetails", JSON.stringify(userObj));      
       this._router.navigate(["/dashbord"]);
     }).catch(err => {
       this.isInvalid = true;

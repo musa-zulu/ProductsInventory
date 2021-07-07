@@ -1,0 +1,57 @@
+<h1 mat-dialog-title><strong>{{action}}</strong></h1>
+<div mat-dialog-content>
+    <div class="form-group">
+        <mat-form-field *ngIf="action !== 'Delete'; else elseTemplate">
+            <input #name="ngModel" placeholder="Product Name" matInput [(ngModel)]="localData.name" name="name"
+                id="name" type="text" class="form-control" required appearance="fill">
+            <div class="alert alert-danger" *ngIf="name.touched && name.invalid">
+                Product name is required
+            </div>
+        </mat-form-field>
+    </div>
+    <div class="form-group">
+        <mat-form-field *ngIf="action !== 'Delete'">
+            <input appearance="fill" #description="ngModel" placeholder="Description" matInput
+                [(ngModel)]="localData.description" name="description" id="description" type="text" class="form-control"
+                required>
+            <div class="alert alert-danger" *ngIf="description.touched && description.invalid">
+                Description is required
+            </div>
+        </mat-form-field>
+    </div>
+    <div class="form-group">
+        <label for="categoryId">Category</label>
+        <select #categoryId="ngModel" [(ngModel)]="localData.categoryId" name="categoryId" id="categoryId" class="form-control" required>
+          <option value=""></option>
+          <option *ngFor="let c of categories$" [value]="c.categoryId">
+            {{ c.name }}
+          </option>
+        </select>
+        <div class="alert alert-danger" *ngIf="categoryId.touched && categoryId.invalid">
+          Category is required.
+        </div>
+      </div>
+    <div class="form-group">
+        <mat-form-field *ngIf="action !== 'Delete'">
+            <input type="number" appearance="fill" #price="ngModel" placeholder="Price" matInput [(ngModel)]="localData.price"
+                name="price" id="price" class="form-control" required>
+            <div class="alert alert-danger" *ngIf="price.touched && price.invalid">
+                Price is required
+            </div>
+        </mat-form-field>
+    </div>
+
+    <div class="form-group">
+        <app-file-upload (onUploadFinished)="uploadFinished($event)"></app-file-upload>
+    </div>
+
+    <ng-template #elseTemplate>
+        Are you sure you want to delete the following product? <br><br>
+        <b>{{localData.name}}</b>
+        <br>
+    </ng-template>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="doAction()" mat-flat-button color="primary">Save</button>
+    <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancel</button>
+</div>
