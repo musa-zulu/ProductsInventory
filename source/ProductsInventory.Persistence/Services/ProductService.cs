@@ -21,8 +21,8 @@ namespace ProductsInventory.Persistence.Services
         {
             var isSaved = false;
             var savedProducts = await GetProductsAsync();
-            var newProductCode = string.Empty;
-            bool isValidProductCode = ValidateProductCode(product, savedProducts, ref newProductCode);
+           
+            bool isValidProductCode = ValidateProductCode(product, savedProducts);
             try
             {
                 if (isValidProductCode)
@@ -55,17 +55,18 @@ namespace ProductsInventory.Persistence.Services
 
             if (paginationFilter == null)
             {
-                return await queryable.ToListAsync();
+                return await queryable.Include(x => x.Category).ToListAsync();
             }
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
-            return await queryable.Skip(skip).Take(paginationFilter.PageSize).ToListAsync();
+            return await queryable.Include(x => x.Category).Skip(skip).Take(paginationFilter.PageSize).ToListAsync();
         }
 
         public async Task<Product> GetProductByIdAsync(Guid productId)
         {
             return await _dataContext.Products
                 .Include(c => c.Category)
+                .AsNoTracking()
                 .SingleOrDefaultAsync(x => x.ProductId == productId);
         }
 
@@ -85,8 +86,14 @@ namespace ProductsInventory.Persistence.Services
             return productCode;
         }
 
-        private static bool ValidateProductCode(Product product, List<Product> savedProducts, ref string newProductCode)
+        private static bool ValidateProductCode(Product product, List<Product> savedProducts)
         {
+            var newProductCode = string.Empty;
+            if (product.ProductCode == null)
+            {
+                newProductCode = GenerateProductCode();
+                product.ProductCode = newProductCode;
+            }
             bool isValidProductCode;
             bool exist = savedProducts.Any(x => x.ProductCode == product.ProductCode);
             isValidProductCode = !exist;

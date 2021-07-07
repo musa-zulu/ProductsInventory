@@ -56,27 +56,8 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Execute Test ----------------------
             controller.UpdateBaseFieldsOn(categoryRequest);
             //---------------Test Result -----------------------
-            Assert.AreEqual(userId, categoryRequest.UserId);
-            Assert.AreEqual(httpContext.User.Identity.Name, categoryRequest.LastUpdatedBy);
+            Assert.AreEqual(userId, categoryRequest.UserId);            
             Assert.AreEqual(dateTimeProvider.Now, categoryRequest.DateLastModified);
-        }
-
-        [Test]
-        public void GetLoggedInUserId_ShouldReturnUserId()
-        {
-            //---------------Set up test pack-------------------
-            ControllerBase controller = CreateBaseController();
-            HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
-            var userId = Guid.Parse(claimsPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value);            
-            var dateTimeProvider = Substitute.For<IDateTimeProvider>();
-            controller.DateTimeProvider = dateTimeProvider;
-            controller.Context = httpContext;
-
-            //---------------Assert Precondition----------------            
-            //---------------Execute Test ----------------------
-            var results = controller.GetLoggedInUserId();
-            //---------------Test Result -----------------------
-            Assert.AreEqual(userId, results);
         }
 
         [Test]
@@ -118,8 +99,7 @@ namespace ProductInventory.Tests.Server.Controllers
             //---------------Execute Test ----------------------
             controller.UpdateBaseFieldsOn(productRequest);
             //---------------Test Result -----------------------
-            Assert.AreEqual(userId, productRequest.UserId);
-            Assert.AreEqual(httpContext.User.Identity.Name, productRequest.LastUpdatedBy);
+            Assert.AreEqual(userId, productRequest.UserId);           
             Assert.AreEqual(dateTimeProvider.Now, productRequest.DateLastModified);
         }
 

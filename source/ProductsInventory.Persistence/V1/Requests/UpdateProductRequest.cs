@@ -14,5 +14,8 @@ namespace ProductsInventory.Persistence.V1.Requests
 
         public Guid CategoryId { get; set; }
         public Guid UserId { get; set; }
+        public string UserName { get; set; }
+
+        public virtual UpdateCategoryRequest Category { get; set; }
     }
 }

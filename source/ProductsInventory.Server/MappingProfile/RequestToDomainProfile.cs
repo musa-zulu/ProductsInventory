@@ -10,10 +10,17 @@ namespace ProductsInventory.Server.MappingProfile
         public RequestToDomainProfile()
         {
             CreateMap<PaginationQuery, PaginationFilter>();
-            CreateMap<CreateCategoryRequest, Category>();
+            CreateMap<CreateCategoryRequest, Category>()
+                   .ForMember(dest => dest.Products, opt =>
+                    opt.Ignore());
             CreateMap<CreateProductRequest, Product>();
-            CreateMap<UpdateCategoryRequest, Category>();            
-            CreateMap<UpdateProductRequest, Product>();            
+            CreateMap<UpdateCategoryRequest, Category>()
+                    .ForMember(dest => dest.Products, opt =>
+                    opt.Ignore());
+            CreateMap<UpdateProductRequest, Product>()
+                   .ForMember(dest => dest.Category, opt =>
+                    opt.MapFrom(src => src.Category))
+                .ReverseMap();
         }
     }
 }

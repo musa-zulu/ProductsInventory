@@ -483,6 +483,7 @@ namespace ProductInventory.Tests.Server.Controllers
             await categoryService.CreateCategoryAsync(category);
             HttpContextSetup(out HttpContext httpContext, out ClaimsPrincipal claimsPrincipal);
             SetUserIdToCategory(category, claimsPrincipal);
+            request.UserId = category.UserId;
             var controller = CreateCategoriesControllerBuilder()
                 .WithCategoryService(categoryService)
                 .WithMapper(_mapper).Build();
@@ -511,6 +512,7 @@ namespace ProductInventory.Tests.Server.Controllers
             var controller = CreateCategoriesControllerBuilder()
                 .WithCategoryService(categoryService)
                 .WithMapper(_mapper).Build();
+            request.UserId = Guid.NewGuid();
             //---------------Assert Precondition----------------           
             controller.Context = httpContext;
             //---------------Execute Test ----------------------

@@ -1,5 +1,6 @@
 ﻿using ProductsInventory.DB.Domain;
 using System;
+using System.Collections.Generic;
 
 namespace ProductsInventory.Persistence.V1.Responses
 {
@@ -10,5 +11,6 @@ namespace ProductsInventory.Persistence.V1.Responses
         public string CategoryCode { get; set; }        
         public bool IsActive { get; set; }
         public Guid UserId { get; set; }
+        public virtual List<ProductResponse> Products { get; set; } //test this
     }
 }

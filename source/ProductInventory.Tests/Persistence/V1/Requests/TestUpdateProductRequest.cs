@@ -25,6 +25,7 @@ namespace ProductInventory.Tests.Persistence.V1.Requests
         [TestCase("Description", typeof(string))]
         [TestCase("Price", typeof(decimal))]
         [TestCase("ImagePath", typeof(string))]
+        [TestCase("UserName", typeof(string))]
         [TestCase("CategoryId", typeof(Guid))]
         [TestCase("UserId", typeof(Guid))]
         [TestCase("LastUpdatedBy", typeof(string))]

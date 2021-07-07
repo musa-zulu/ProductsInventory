@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ProductsInventory.DB.Domain
@@ -15,5 +16,6 @@ namespace ProductsInventory.DB.Domain
         public bool IsActive { get; set; }
 
         public Guid UserId { get; set; }
+        public virtual List<Product> Products { get; set; }
     }
 }

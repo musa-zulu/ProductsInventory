@@ -19,7 +19,7 @@
             </div>
         </mat-form-field>
     </div>
-    <div class="form-group">
+    <div class="form-group" *ngIf="action !== 'Delete'">
         <label for="categoryId">Category</label>
         <select #categoryId="ngModel" [(ngModel)]="localData.categoryId" name="categoryId" id="categoryId" class="form-control" required>
           <option value=""></option>
@@ -41,7 +41,7 @@
         </mat-form-field>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" *ngIf="action !== 'Delete'">
         <app-file-upload (onUploadFinished)="uploadFinished($event)"></app-file-upload>
     </div>
 

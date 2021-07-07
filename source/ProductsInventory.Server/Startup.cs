@@ -9,6 +9,8 @@ using ProductsInventory.Server.Options;
 using ProductsInventory.DB;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Http;
 
 namespace ProductsInventory.Server
 {
@@ -16,7 +18,7 @@ namespace ProductsInventory.Server
     {
         private readonly IConfigurationRoot configRoot;
         public Startup(IConfiguration configuration)
-        {            
+        {
             Configuration = configuration;
             IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json");
             configRoot = builder.Build();
@@ -53,13 +55,17 @@ namespace ProductsInventory.Server
 
             app.UseHttpsRedirection();
 
-            app.UseStaticFiles();
-
             app.UseCors(options =>
-                options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+                        options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseAuthentication();
 
+            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Resources")),
+                RequestPath = new PathString("/Resources")
+            });
             app.UseMvc();
 
             // This returns the context.

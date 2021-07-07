@@ -24,11 +24,11 @@ namespace ProductsInventory.Persistence.Services
 
             if (paginationFilter == null)
             {
-                return await queryable.ToListAsync();
+                return await queryable.Include(x => x.Products).ToListAsync();
             }
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
-            return await queryable.Skip(skip).Take(paginationFilter.PageSize).ToListAsync();
+            return await queryable.Include(x => x.Products).Skip(skip).Take(paginationFilter.PageSize).ToListAsync();
         }
 
         public async Task<bool> CreateCategoryAsync(Category category)
@@ -38,16 +38,18 @@ namespace ProductsInventory.Persistence.Services
             {
                 _dataContext.Categories.Add(category);
                 isSaved = await _dataContext.SaveChangesAsync() > 0;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return isSaved;
-            }            
+            }
             return isSaved;
         }
 
         public async Task<Category> GetCategoryByIdAsync(Guid categoryId)
         {
             return await _dataContext.Categories
+                .Include(x => x.Products)
                 .SingleOrDefaultAsync(x => x.CategoryId == categoryId);
         }
 

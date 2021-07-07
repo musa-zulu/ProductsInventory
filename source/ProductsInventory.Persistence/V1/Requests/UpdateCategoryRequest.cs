@@ -10,5 +10,6 @@ namespace ProductsInventory.Persistence.V1.Requests
         public string CategoryCode { get; set; }
         public bool IsActive { get; set; }
         public Guid UserId { get; set; }
+        public string UserName { get; set; }
     }
 }

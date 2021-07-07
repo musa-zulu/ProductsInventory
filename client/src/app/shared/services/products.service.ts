@@ -63,13 +63,12 @@ export class ProductsService {
       .toPromise();
   }
 
-  downloadExcel(): Observable<any> {
+  downloadExcel(){
     return this._http
-    .get(
+    .post(
       this._serverConfig.getBaseUrl() + this._apiURL + '/downloadExcel',      
-      this._serverConfig.getRequestOptions()
-    )
-    .pipe(retry(1), catchError(this.handleError));  
+      { responseType: 'blob'} 
+    );
   }
 
   private handleError(error: any) {

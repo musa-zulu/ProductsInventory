@@ -6,7 +6,7 @@ using System;
 namespace ProductInventory.Tests.Persistence.V1.Requests
 {
     [TestFixture]
-    public class TestCreateProductRequest
+    public class TestGetUserRequest
     {
         [Test]
         public void Construct()
@@ -14,27 +14,15 @@ namespace ProductInventory.Tests.Persistence.V1.Requests
             //---------------Set up test pack-------------------
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => new CreateProductRequest());
+            Assert.DoesNotThrow(() => new GetUserRequest());
             //---------------Test Result -----------------------
         }
-
-
-        [TestCase("ProductId", typeof(Guid))]
-        [TestCase("ProductCode", typeof(string))]
-        [TestCase("Name", typeof(string))]
-        [TestCase("Description", typeof(string))]
-        [TestCase("Price", typeof(decimal))]
-        [TestCase("ImagePath", typeof(string))]
-        [TestCase("CategoryId", typeof(Guid))]
-        [TestCase("UserId", typeof(Guid))]        
-        [TestCase("LastUpdatedBy", typeof(string))]
-        [TestCase("DateCreated", typeof(DateTime?))]
-        [TestCase("DateLastModified", typeof(DateTime?))]
-        [TestCase("UserName", typeof(string))]
-        public void CreateProductRequest_ShouldHaveProperty(string propertyName, Type propertyType)
+                
+        [TestCase("Email", typeof(string))]        
+        public void GetUserRequest_ShouldHaveProperty(string propertyName, Type propertyType)
         {
             //---------------Set up test pack-------------------
-            var sut = typeof(CreateProductRequest);
+            var sut = typeof(GetUserRequest);
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
             sut.ShouldHaveProperty(propertyName, propertyType);

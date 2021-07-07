@@ -23,7 +23,7 @@ namespace ProductInventory.Tests.Persistence.V1.Requests.Queries
         {
             //---------------Set up test pack-------------------
             int pageNumber = 1;
-            int pageSize = 10;
+            int pageSize = 1000;
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------            
             var paginationQuery = new PaginationQuery();

@@ -19,7 +19,7 @@ namespace ProductsInventory.Server.Controllers.V1
         private readonly ICategoryService _categoryService;
 
         public CategoriesController(ICategoryService categoryService, IMapper mapper, IUriService uriService)
-            :base(mapper, uriService)
+            : base(mapper, uriService)
         {
             _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
         }
@@ -27,18 +27,11 @@ namespace ProductsInventory.Server.Controllers.V1
         [HttpGet(ApiRoutes.Categories.GetAll)]
         public async Task<IActionResult> GetAll([FromQuery] PaginationQuery paginationQuery)
         {
-            Guid userId = GetLoggedInUserId();
-            if (userId == Guid.Empty)
-            {
-                return InvalidRequest();
-            }
             var pagination = _mapper.Map<PaginationFilter>(paginationQuery);
 
             var categories = await _categoryService.GetCategoriesAsync(pagination);
 
-            var userCategories = categories?.Where(x => x.UserId == userId);
-            var categoryResponse = _mapper.Map<List<CategoryResponse>>(userCategories);
-
+            var categoryResponse = _mapper.Map<List<CategoryResponse>>(categories);
 
             if (pagination == null || pagination.PageNumber < 1 || pagination.PageSize < 1)
             {
@@ -52,14 +45,9 @@ namespace ProductsInventory.Server.Controllers.V1
         [HttpGet(ApiRoutes.Categories.Get)]
         public async Task<IActionResult> Get([FromRoute] Guid categoryId)
         {
-            Guid userId = GetLoggedInUserId();
-            if (userId == Guid.Empty)
-            {
-                return InvalidRequest();
-            }
             var category = await _categoryService.GetCategoryByIdAsync(categoryId);
-            
-            if (category == null || category.UserId != userId)
+
+            if (category == null)
                 return NotFound();
 
             var categoryResponse = _mapper.Map<CategoryResponse>(category);
@@ -70,6 +58,7 @@ namespace ProductsInventory.Server.Controllers.V1
         public async Task<IActionResult> Create([FromBody] CreateCategoryRequest categoryRequest)
         {
             SetDefaultFieldsFor(categoryRequest);
+           
             if (categoryRequest.UserId == Guid.Empty)
             {
                 return InvalidRequest();
@@ -88,15 +77,15 @@ namespace ProductsInventory.Server.Controllers.V1
                 return InvalidRequest(message);
             }
 
-            categoryRequest.CategoryCode = categoryRequest.CategoryCode.ToUpperInvariant();
-            var category = _mapper.Map<CreateCategoryRequest, Category>(categoryRequest);            
+            categoryRequest.CategoryCode = categoryRequest.CategoryCode.ToUpperInvariant();            
+            var category = _mapper.Map<CreateCategoryRequest, Category>(categoryRequest);
 
             await _categoryService.CreateCategoryAsync(category);
 
             var locationUri = _uriService.GetCategoryUri(category.CategoryId.ToString());
             return Created(locationUri, new Response<CategoryResponse>(_mapper.Map<CategoryResponse>(category)));
         }
-      
+
 
         [HttpPut(ApiRoutes.Categories.Update)]
         public async Task<IActionResult> Update([FromBody] UpdateCategoryRequest request)
@@ -113,7 +102,6 @@ namespace ProductsInventory.Server.Controllers.V1
             }
 
             var category = _mapper.Map<UpdateCategoryRequest, Category>(request);
-            category.CategoryId = request.CategoryId;
 
             var isUpdated = await _categoryService.UpdateCategoryAsync(category);
 
@@ -135,6 +123,6 @@ namespace ProductsInventory.Server.Controllers.V1
                 return NoContent();
 
             return NotFound();
-        }       
+        }
     }
 }

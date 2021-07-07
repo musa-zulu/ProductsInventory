@@ -45,46 +45,38 @@ namespace ProductsInventory.Server.Controllers.V1
         }
 
         public void SetDefaultFieldsFor(CreateCategoryRequest categoryRequest)
-        {
-            Guid userId = GetLoggedInUserId();
-            categoryRequest.CategoryId = Guid.NewGuid();
-            categoryRequest.DateCreated = DateTimeProvider.Now;
-            categoryRequest.DateLastModified = DateTimeProvider.Now;
-            categoryRequest.UserId = userId;
+        {            
+            if (categoryRequest != null)
+            {
+                categoryRequest.CategoryId = Guid.NewGuid();
+                categoryRequest.DateCreated = DateTimeProvider.Now;
+                categoryRequest.DateLastModified = DateTimeProvider.Now;
+                categoryRequest.UserId = categoryRequest.UserId;
+                categoryRequest.CreatedBy = categoryRequest.UserName;
+                categoryRequest.LastUpdatedBy = categoryRequest.UserName;
+            }
         }
 
         public void UpdateBaseFieldsOn(UpdateCategoryRequest request)
-        {
-            Guid userId = GetLoggedInUserId();
+        {            
             request.DateLastModified = DateTimeProvider.Now;
-            request.LastUpdatedBy = Context?.User.Identity.Name ?? "";
-            request.UserId = userId;
+            request.LastUpdatedBy = request.UserName;       
         }
-        public Guid GetLoggedInUserId()
-        {
-            var id = Context?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userId = Guid.Empty;
-            if (id != null)
-            {
-                userId = Guid.Parse(id);
-            }
-            return userId;
-        }
+        
         public void SetDefaultFieldsFor(CreateProductRequest productRequest)
-        {
-            Guid userId = GetLoggedInUserId();
+        {          
             productRequest.ProductId = Guid.NewGuid();
             productRequest.DateCreated = DateTimeProvider.Now;
             productRequest.DateLastModified = DateTimeProvider.Now;
-            productRequest.UserId = userId;
+            productRequest.CreatedBy = productRequest.UserName;
+            productRequest.LastUpdatedBy = productRequest.UserName;
+            productRequest.UserId = productRequest.UserId;
         }
 
         public void UpdateBaseFieldsOn(UpdateProductRequest request)
         {
-            Guid userId = GetLoggedInUserId();
-            request.DateLastModified = DateTimeProvider.Now;
-            request.LastUpdatedBy = Context?.User.Identity.Name ?? "";
-            request.UserId = userId;
+            request.DateLastModified = DateTimeProvider.Now;            
+            request.LastUpdatedBy = request.UserName;            
         }
 
         public IActionResult InvalidRequest(string message = null)

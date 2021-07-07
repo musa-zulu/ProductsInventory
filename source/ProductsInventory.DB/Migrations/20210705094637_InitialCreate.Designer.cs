@@ -10,8 +10,8 @@ using ProductsInventory.DB;
 namespace ProductsInventory.DB.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210704102330_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20210705094637_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -358,12 +358,17 @@ namespace ProductsInventory.DB.Migrations
             modelBuilder.Entity("ProductsInventory.DB.Domain.Product", b =>
                 {
                     b.HasOne("ProductsInventory.DB.Domain.Category", "Category")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("ProductsInventory.DB.Domain.Category", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using ProductsInventory.Persistence.V1;
 using ProductsInventory.Persistence.V1.Requests;
+using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ProductsInventory.Server.Controllers.V1
@@ -18,7 +22,7 @@ namespace ProductsInventory.Server.Controllers.V1
         }
                 
         [HttpPost(ApiRoutes.Account.Register)]
-        public async Task<IActionResult> Register(RegisterRequest model)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest model)
         {
             if (ModelState.IsValid)
             {
@@ -39,16 +43,17 @@ namespace ProductsInventory.Server.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Account.Login)]
-        public async Task<IActionResult> Login(LoginRequest user)
+        public async Task<IActionResult> Login([FromBody] LoginRequest user)
         {
             if (ModelState.IsValid)
             {
                 var result = await _signInManager.PasswordSignInAsync(user.Email, user.Password, user.RememberMe, false);
                 if (result.Succeeded)
                 {
-                    return Ok(result.Succeeded);
+                    var currentUser = _userManager.Users.FirstOrDefault(u => u.UserName == user.Email);
+                    return Ok(currentUser);
                 }
-                return BadRequest();
+                return BadRequest(result.IsNotAllowed);
             }
             return BadRequest();
         }
@@ -59,6 +64,19 @@ namespace ProductsInventory.Server.Controllers.V1
             await _signInManager.SignOutAsync();
 
             return Ok();
+        }
+
+        [HttpPost(ApiRoutes.Account.GetUser)]
+        public IActionResult SignedInUser([FromBody] GetUserRequest request)
+        {
+            var currentUser = _userManager.Users.FirstOrDefault(u => u.UserName == request.Email);            
+            
+            if (currentUser == null)
+            {
+                return Ok("user doesn't exist!");
+            }
+            var user = JsonConvert.SerializeObject(currentUser);
+            return Ok(user);
         }
     }
 }

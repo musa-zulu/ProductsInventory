@@ -20,6 +20,7 @@
             public const string Login = Base + "/account/login";
             public const string Logout = Base + "/account/logout";       
             public const string Register = Base + "/account/register";       
+            public const string GetUser = Base + "/account/getUser";       
         }
 
         public static class Products
@@ -29,6 +30,8 @@
             public const string Delete = Base + "/products/{productId}";
             public const string Get = Base + "/products/{productId}";
             public const string Create = Base + "/products";
+            public const string UploadImage = Base + "/products/Upload";
+            public const string DownloadExcel = Base + "/products/downloadExcel";
         }
     }
 }

@@ -356,12 +356,17 @@ namespace ProductsInventory.DB.Migrations
             modelBuilder.Entity("ProductsInventory.DB.Domain.Product", b =>
                 {
                     b.HasOne("ProductsInventory.DB.Domain.Category", "Category")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("ProductsInventory.DB.Domain.Category", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

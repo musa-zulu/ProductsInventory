@@ -190,20 +190,31 @@ export class ProductFormComponent implements OnInit {
     this.initializeTable(filteredProducts);
   }
 
-  downloadExcel() {
+  /*downloadExcel() {
     console.log();      
-    this._productService.downloadExcel().subscribe(result => {  
-    //  window.open(result);
-    let a = document.getElementById('downloader');
-    if (!a) {
-       a = document.createElement('a');
-       a.id = 'downloader';
-       //a.target = '_blank'; 
-       a.style.visibility = "hidden";
-       document.body.appendChild(a);
-    }
-    //a.href = 'https://localhost:44396/api/ApprovalQuality/download?fileName=' + result;
-    a.click();
-    });
-  }
+    var file = this._productService.downloadExcel().toPromise().then(x => {
+      console.log(x)
+      const blob = new Blob([x], { type: 'application/octet-stream' });
+      const url= window.URL.createObjectURL(blob);
+      window.open(url);
+    });  
+   debugger;
+    var headers = new Headers();
+    headers.append('responseType', 'arraybuffer');
+
+    let url = new URL('api/excelFile/test', environment.apiUrl);
+
+    return this.http
+        .get(url.href, {
+            withCredentials: true,
+            responseType: ResponseContentType.ArrayBuffer
+        })
+        .subscribe((response) => {
+            let file = new Blob([response.blob()], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            let fileName = response.headers.get('Content-Disposition').split(';')[1].trim().split('=')[1];
+            saveAs(file, fileName);
+        },
+        err => this.errorHandler.onError(err)
+        );
+  }*/
 }

@@ -474,7 +474,8 @@ namespace ProductInventory.Tests.Server.Controllers
             var request = new UpdateProductRequest
             {
                 ProductId = Guid.NewGuid(),
-                ProductCode = "BBB123"
+                ProductCode = "BBB123",
+                UserId = Guid.NewGuid()
             };
             var product = ProductBuilder.BuildRandom();
             var productService = Substitute.For<IProductService>();
@@ -500,7 +501,8 @@ namespace ProductInventory.Tests.Server.Controllers
             var request = new UpdateProductRequest
             {
                 ProductId = Guid.NewGuid(),
-                ProductCode = "BBB123"
+                ProductCode = "BBB123",
+                UserId = Guid.NewGuid()
             };
 
             var productService = Substitute.For<IProductService>();
